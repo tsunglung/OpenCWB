@@ -1,0 +1,8 @@
+{
+  "name": "Opendata CWB",
+  "render_readme": true,
+  "domain": "opencwb",
+  "documentation": "https://github.com/tsunglung/OpenCWB",
+  "issue_tracker": "https://github.com/tsunglung/OpenCWB/issues",
+  "homeassistant": "2021.4.0"
+}
