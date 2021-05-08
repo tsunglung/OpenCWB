@@ -30,5 +30,10 @@ Then restart HA.
    2. If the integration is still not in the list, you need to clear the browser cache.
 2. Enter API key.
 3. Enter the location name of Taiwan. Please reference to the name in the [doc](https://opendata.cwb.gov.tw/opendatadoc/CWB_Opendata_API_V1.2.pdf) appendix A.
+   1. Some location name need to include the city name.
 
-<img src="https://github.com/tsunglung/OpenCWB/blob/master/linepay.jpg" alt="Line Pay" height="200" width="200"><img src="https://github.com/tsunglung/OpenCWB/blob/master/jkopay.jpg" alt="JKo Pay" height="200" width="200">
+Buy Me A Coffee
+
+|  LINE Pay | LINE Bank | JKao Pay |
+| :------------: | :------------: | :------------: |
+| <img src="https://github.com/tsunglung/OpenCWB/blob/master/linepay.jpg" alt="Line Pay" height="200" width="200">  | <img src="https://github.com/tsunglung/OpenCWB/blob/master/linebank.jpg" alt="Line Bank" height="200" width="200">  | <img src="https://github.com/tsunglung/OpenCWB/blob/master/jkopay.jpg" alt="JKo Pay" height="200" width="200">  |

@@ -49,6 +49,14 @@ class WeatherManager:
                     return i
         return None
 
+    def remove_city_name(self, location_name):
+        location_name = urllib.parse.quote_plus(
+            location_name).replace("%E5%8F%B0", "%E8%87%BA")
+        for i in LOCATIONS["F-D0047-091"]:
+            if i in location_name:
+                return location_name.replace(i, "")
+        return location_name
+
     def weather_at_place(self, name):
         """
         Queries the OCWB Weather API for the currently observed weather at the
@@ -540,11 +548,12 @@ class WeatherManager:
         geo.assert_is_lat(lat)
 
         loc_id = self.supported_city(loc)
+        loc = self.remove_city_name(loc)
         params = {
             'lon': lon,
             'lat': lat,
             'locationId': loc_id,
-            'locationName': urllib.parse.quote_plus(loc).replace("%E5%8F%B0", "%E8%87%BA")}
+            'locationName': loc}
         for key , value in kwargs.items():
             if key == 'exclude':
                 params['exclude'] = value

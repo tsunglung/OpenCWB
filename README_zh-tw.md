@@ -30,5 +30,12 @@
    2. 如果 OpenCWB 還是沒有出現在清單裡，請清除瀏覽器的快取 (Cache)。
 2. 輸入 API 授權碼.
 3. 輸入台灣的郷鎮市的名稱。 請參考在 [文件](https://opendata.cwb.gov.tw/opendatadoc/CWB_Opendata_API_V1.2.pdf) 附錄 A 裡的名稱。
+   1. 如果，是下列鄉鎮市，則需要包含城市名，例如，是東區，要打 嘉義市東區 或是 臺中市東區。
+   2. 北區 西區 東區 中區 南區 信義區 中正區 中山區 大安區
 
-<img src="https://github.com/tsunglung/OpenCWB/blob/master/linepay.jpg" alt="Line Pay" height="200" width="200"><img src="https://github.com/tsunglung/OpenCWB/blob/master/jkopay.jpg" alt="JKo Pay" height="200" width="200">
+
+打賞
+
+|  LINE Pay | LINE Bank | JKao Pay |
+| :------------: | :------------: | :------------: |
+| <img src="https://github.com/tsunglung/OpenCWB/blob/master/linepay.jpg" alt="Line Pay" height="200" width="200">  | <img src="https://github.com/tsunglung/OpenCWB/blob/master/linebank.jpg" alt="Line Bank" height="200" width="200">  | <img src="https://github.com/tsunglung/OpenCWB/blob/master/jkopay.jpg" alt="JKo Pay" height="200" width="200">  |
