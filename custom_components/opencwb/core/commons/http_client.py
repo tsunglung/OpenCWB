@@ -10,8 +10,10 @@ from .enums import ImageTypeEnum
 
 class HttpRequestBuilder:
 
-    URL_TEMPLATE_WITH_SUBDOMAINS = '{}://{}.{}/{}?Authorization={}&format=JSON&locationId={}&locationName={}'
-    URL_TEMPLATE_WITHOUT_SUBDOMAINS = '{}://{}/{}?Authorization={}&format=JSON&locationId={}&locationName={}'
+    URL_TEMPLATE_WITH_SUBDOMAINS = '{}://{}.{}/{}?Authorization={}&format=JSON&locationName={}'
+    URL_TEMPLATE_WITH_SUBDOMAINS_WITH_LOCATIONID = '{}://{}.{}/{}?Authorization={}&format=JSON&locationId={}&locationName={}'
+    URL_TEMPLATE_WITHOUT_SUBDOMAINS = '{}://{}/{}?Authorization={}&format=JSON&locationName={}'
+    URL_TEMPLATE_WITHOUT_SUBDOMAINS_WITH_LOCATIONID = '{}://{}/{}?Authorization={}&format=JSON&locationId={}&locationName={}'
 
     """
     A stateful HTTP URL, params and headers builder with a fluent interface
@@ -84,20 +86,31 @@ class HttpRequestBuilder:
 
     def build(self):
         locationId = self.params.get("locationId", None)
-        assert isinstance(locationId, str)
         locationName = self.params.get("locationName", None)
         assert isinstance(locationName, str)
 
         if self.has_subdomains:
-            return self.URL_TEMPLATE_WITH_SUBDOMAINS.format(
-                self.schema, self.subdomain, self.root, self.path,
-                    self.api_key, locationId, locationName), \
-                        self.params, self.headers, self.proxies
+            if locationId:
+                return self.URL_TEMPLATE_WITH_SUBDOMAINS_WITH_LOCATIONID.format(
+                    self.schema, self.subdomain, self.root, self.path,
+                        self.api_key, locationId, locationName), \
+                            self.params, self.headers, self.proxies
+            else:
+                return self.URL_TEMPLATE_WITH_SUBDOMAINS.format(
+                    self.schema, self.subdomain, self.root, self.path,
+                        self.api_key, locationName), \
+                            self.params, self.headers, self.proxies
         else:
-            return self.URL_TEMPLATE_WITHOUT_SUBDOMAINS.format(
-                self.schema, self.root, self.path,
-                    self.api_key, locationId, locationName), \
-                        self.params, self.headers, self.proxies
+            if locationId:
+                return self.URL_TEMPLATE_WITHOUT_SUBDOMAINS_WITH_LOCATIONID.format(
+                    self.schema, self.root, self.path,
+                        self.api_key, locationId, locationName), \
+                            self.params, self.headers, self.proxies
+            else:
+                return self.URL_TEMPLATE_WITHOUT_SUBDOMAINS.format(
+                    self.schema, self.root, self.path,
+                        self.api_key, locationName), \
+                            self.params, self.headers, self.proxies
 
     def __repr__(self):
         return "<%s.%s>" % (__name__, self.__class__.__name__)

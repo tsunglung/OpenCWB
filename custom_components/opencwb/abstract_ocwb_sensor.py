@@ -53,6 +53,7 @@ class AbstractOpenCWBSensor(SensorEntity):
             "name": DEFAULT_NAME,
             "manufacturer": MANUFACTURER,
             "entry_type": "service",
+            "model": "Forecast",
         }
 
     @property

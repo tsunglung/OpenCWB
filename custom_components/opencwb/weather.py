@@ -65,6 +65,7 @@ class OpenCWBWeather(WeatherEntity):
             "name": DEFAULT_NAME,
             "manufacturer": MANUFACTURER,
             "entry_type": "service",
+            "model": "Forecast",
         }
 
     @property

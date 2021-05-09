@@ -70,7 +70,7 @@ class Location:
         if 'sys' in the_dict and 'country' in the_dict['sys']:
             country = the_dict['sys']['country']
         data = the_dict['city'] if 'city' in the_dict else the_dict
-        name = data['name'] if 'name' in data else None
+        name = data['locationName'] if 'locationName' in data else None
         ID = int(data['id']) if 'id' in data else None
         if 'coord' in data:
             lon = data['coord'].get('lon', 0.0)
@@ -84,8 +84,8 @@ class Location:
                 lon = 0.0
             lat = data['station']['coord'].get('lat', 0.0)
         elif 'lat' in the_dict and 'lon' in the_dict:
-            lat = the_dict['lat']
-            lon = the_dict['lon']
+            lat = float(the_dict['lat'])
+            lon = float(the_dict['lon'])
         else:
             raise KeyError("Impossible to read geographical coordinates from JSON")
         if 'country' in data:

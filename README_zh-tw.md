@@ -5,7 +5,7 @@
 
 這個整合是基於 [OpenWeatherMap](https://openweathermap.org) ([@csparpa](https://pypi.org/user/csparpa), [pyowm](https://github.com/csparpa/pyowm)) 所做的開發。
 
-## 安裝
+# 安裝
 
 你可以用 [HACS](https://hacs.xyz/) 來安裝這個整合。 步驟如下 custom repo: HACS > Integrations > 3 dots (upper top corner) > Custom repositories > URL: `tsunglung/OpenCWB` > Category: Integration
 
@@ -33,6 +33,9 @@
    1. 如果，是下列鄉鎮市，則需要包含城市名，例如，是東區，要打 嘉義市東區 或是 臺中市東區。
    2. 北區 西區 東區 中區 南區 信義區 中正區 中山區 大安區
 
+## 注意事項
+
+如果是鄉鎮區，onecall_daily (一週預報) 不支援。請改用 daily 模式。
 
 打賞
 

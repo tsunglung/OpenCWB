@@ -1,37 +1,50 @@
 import time
 from datetime import datetime
-import logging
-_LOGGER = logging.getLogger(__name__)
 
 class OpendataCWB:
 
     @staticmethod
-    def _get_weather(the_dict, index):
+    def _get_weather(the_dict, index, wx_index, last_pop, mode):
         value = {}
-        start_time = the_dict[0]["time"][index]["startTime"]
-        try:
-            value["dt"] = int(time.mktime(datetime.strptime(start_time.strip(), "%Y-%m-%d %H:%M:%S").timetuple()))
-        except ValueError as error:
-            value["dt"] = int(time.time())
+        start_time = None
+        value["dt"] = int(time.time())
+        if index < len(the_dict[wx_index]["time"]):
+            start_time = the_dict[wx_index]["time"][index]["startTime"]
+        if start_time:
+            try:
+                value["dt"] = int(time.mktime(datetime.strptime(
+                    start_time.strip(), "%Y-%m-%d %H:%M:%S").timetuple()))
+            except ValueError as error:
+                pass
         value["weather"] = [{}]
         value["main"] = {}
         value["calc"] = {}
         value["feels_like"] = {}
+        value["pop"] = last_pop
+        pop_mode = "PoP12h"
+        if mode == "hourly":
+            # PoP6h or PoP3h
+            pop_mode = "PoP"
         for i in the_dict:
-            element_value = []
+            element_value = None
             if index < len(i["time"]):
-                element_value = i["time"][index]["elementValue"]
+                element_value = i["time"][index].get("elementValue", None)
+            if element_value is None:
+                continue
             if "WeatherDescription" == i["elementName"]:
                 value["weather"][0]["description"] = element_value[0]["value"]
                 value["weather"][0]["icon"] =  ""
             elif "Wx" == i["elementName"]:
                 value["weather"][0]["main"] = element_value[0]["value"]
                 value["weather"][0]["id"] = int(element_value[1]["value"])
-            elif "PoP" in i["elementName"]:
-                pop = i["time"][index]["elementValue"][0]["value"]
-                if pop == " ":
-                    pop = "0"
-                value["pop"] = float(int(pop)/100)
+            elif pop_mode in i["elementName"]:
+                for j in i["time"]:
+                    if start_time == j["startTime"]:
+                        pop = element_value[0]["value"]
+                        if pop == " ":
+                            pop = "0"
+                        value["pop"] = float(int(pop)/100)
+                        break
             elif "AT" == i["elementName"]:
                 value["main"]["feels_like"] = int(element_value[0]["value"])
             elif "MaxAT" == i["elementName"]:
@@ -73,7 +86,6 @@ class OpendataCWB:
     def to_dict(cls, the_dict):
         value = {}
         record = None
-#        _LOGGER.error(the_dict)
         for i in the_dict["records"]["locations"]:
             if len(i["location"]) >= 1:
                 record = i
@@ -81,22 +93,35 @@ class OpendataCWB:
 
         if record is None:
             return value
-#        _LOGGER.error(record)
+
         value["lon"] = float(record["location"][0]["lon"])
         value["lat"] = float(record["location"][0]["lat"])
         value["timezone"] = 8
 
+        mode = ""
+        dataset_desc = record["datasetDescription"]
+        if dataset_desc == "\u81fa\u7063\u5404\u7e23\u5e02\u9109\u93ae\u672a\u4f861\u9031\u901012\u5c0f\u6642\u5929\u6c23\u9810\u5831":
+            mode = "daily"
+        if dataset_desc == "\u81fa\u7063\u5404\u7e23\u5e02\u9109\u93ae\u672a\u4f863\u5929(72\u5c0f\u6642)\u90103\u5c0f\u6642\u5929\u6c23\u9810\u5831":
+            mode = "hourly"
+
+        wx_index = 0
+        length = 0
+        last_pop = 0
+        for i in record["location"][0]["weatherElement"]:
+            if i['elementName'] == "Wx":
+                length = len(i["time"])
+                break
+            wx_index = wx_index + 1
+
         value["current"] = OpendataCWB._get_weather(
-            record["location"][0]["weatherElement"], 0)
-        if len(record["location"][0]["weatherElement"][0]["time"]) > 12:
-            value["daily"] = []
-            for i in range(1, len(record["location"][0]["weatherElement"][0]["time"])):
-                value["daily"].append(OpendataCWB._get_weather(
-                    record["location"][0]["weatherElement"], i))
-        else:
-            value["hourly"] = []
-            for i in range(1, len(record["location"][0]["weatherElement"][0]["time"])):
-                value["hourly"].append(OpendataCWB._get_weather(
-                    record["location"][0]["weatherElement"], i))
-#        _LOGGER.error(value)
+            record["location"][0]["weatherElement"], 0, wx_index, last_pop, mode)
+        last_pop = value["current"]["pop"]
+
+        value[mode] = []
+        for i in range(1, length):
+            value[mode].append(OpendataCWB._get_weather(
+                record["location"][0]["weatherElement"], i, wx_index, last_pop, mode))
+            last_pop = value["current"]["pop"]
+
         return value

@@ -6,6 +6,7 @@ from ..commons import exceptions
 from ..utils import formatting
 from . import location
 from . import weather
+from ..utils.opendata_cwb import OpendataCWB
 
 
 class Observation:
@@ -66,23 +67,21 @@ class Observation:
         if the_dict is None:
             raise exceptions.ParseAPIResponseError('JSON data is None')
 
-        # Check if server returned errors: this check overcomes the lack of use
-        # of HTTP error status codes by the OCWB API 2.5. This mechanism is
-        # supposed to be deprecated as soon as the API fully adopts HTTP for
-        # conveying errors to the clients
-        if 'message' in the_dict and 'cod' in the_dict:
-            if the_dict['cod'] != "404":
-                raise exceptions.APIResponseError(
-                                      "OCWB API: error - response payload", the_dict['cod'])
-            print("OCWB API: observation data not available")
-            return None
+        if 'success' in the_dict:
+            if not the_dict['success']:
+                return None
+            try:
+                the_dict = OpendataCWB.to_dict(the_dict)
+            except ValueError:
+                raise exceptions.ParseAPIResponseError(
+                    f"{__name__}: impossible to read weather info from input data")
         try:
             place = location.Location.from_dict(the_dict)
         except KeyError:
             raise exceptions.ParseAPIResponseError(
                                       ''.join([__name__, ': impossible to read location info from JSON data']))
         try:
-            w = weather.Weather.from_dict(the_dict)
+            w = weather.Weather.from_dict(the_dict["current"])
         except KeyError:
             raise exceptions.ParseAPIResponseError(
                                       ''.join([__name__, ': impossible to read weather info from JSON data']))

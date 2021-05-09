@@ -64,8 +64,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         self._longitude = longitude
         self._forecast_mode = forecast_mode
         self._forecast_limit = None
-        if ocwb.supported_city(location_name) != "F-D0047-091":
-            self._forecast_mode = FORECAST_MODE_ONECALL_HOURLY
+
         if forecast_mode == FORECAST_MODE_DAILY:
             self._forecast_limit = 15
 
@@ -102,9 +101,9 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
     def _get_legacy_weather_and_forecast(self):
         """Get weather and forecast data from Opendata CWB."""
         interval = self._get_forecast_interval()
-        weather = self._ocwb_client.weather_at_coords(self._latitude, self._longitude)
-        forecast = self._ocwb_client.forecast_at_coords(
-            self._latitude, self._longitude, interval, self._forecast_limit
+        weather = self._ocwb_client.weather_at_place(self._location_name, interval)
+        forecast = self._ocwb_client.forecast_at_place(
+            self._location_name, interval, self._forecast_limit
         )
         return LegacyWeather(weather.weather, forecast.forecast.weathers)
 
@@ -112,7 +111,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         """Get the correct forecast interval depending on the forecast mode."""
         interval = "daily"
         if self._forecast_mode == FORECAST_MODE_HOURLY:
-            interval = "12h"
+            interval = "3h"
         return interval
 
     def _convert_weather_response(self, weather_response):

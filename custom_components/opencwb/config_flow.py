@@ -2,6 +2,7 @@
 from .core.ocwb import OCWB
 from .core.commons.exceptions import APIRequestError, UnauthorizedError
 import voluptuous as vol
+import urllib.parse
 
 from homeassistant import config_entries
 from homeassistant.const import (
@@ -23,8 +24,11 @@ from .const import (
     DEFAULT_NAME,
     DOMAIN,
     FORECAST_MODES,
+    FORECAST_MODE_ONECALL_HOURLY,
+    FORECAST_MODE_ONECALL_DAILY,
     LANGUAGES,
 )
+from .core.weatherapi12.uris import ONE_CALL_URI
 
 
 class OpenCWBConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -47,12 +51,18 @@ class OpenCWBConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             latitude = user_input.get(CONF_LATITUDE, self.hass.config.latitude)
             longitude = user_input.get(CONF_LONGITUDE, self.hass.config.longitude)
             location_name = user_input.get(CONF_LOCATION_NAME, None)
-            if (location_name and
-                    _is_supported_city(user_input[CONF_API_KEY], location_name) is None):
+            location_id = _is_supported_city(user_input[CONF_API_KEY], location_name)
+
+            if location_name and location_id is None:
                 errors["base"] = "invalid_location_name"
             else:
-                await self.async_set_unique_id(f"{latitude}-{longitude}")
+                await self.async_set_unique_id(
+                    urllib.parse.quote_plus(location_name) + "-" + user_input[CONF_MODE])
                 self._abort_if_unique_id_configured()
+
+                if (location_id != ONE_CALL_URI and
+                        user_input[CONF_MODE] == FORECAST_MODE_ONECALL_DAILY):
+                    user_input[CONF_MODE] = FORECAST_MODE_ONECALL_HOURLY
 
                 try:
                     api_online = await _is_ocwb_api_online(
@@ -81,9 +91,9 @@ class OpenCWBConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 #                vol.Optional(
 #                    CONF_LONGITUDE, default=self.hass.config.longitude
 #                ): cv.longitude,
-#                vol.Optional(CONF_MODE, default=DEFAULT_FORECAST_MODE): vol.In(
-#                    FORECAST_MODES
-#                ),
+                vol.Optional(CONF_MODE, default=DEFAULT_FORECAST_MODE): vol.In(
+                    FORECAST_MODES
+                ),
 #                vol.Optional(CONF_LANGUAGE, default=DEFAULT_LANGUAGE): vol.In(
 #                    LANGUAGES
 #                ),
@@ -103,6 +113,13 @@ class OpenCWBOptionsFlow(config_entries.OptionsFlow):
     async def async_step_init(self, user_input=None):
         """Manage the options."""
         if user_input is not None:
+            location_id = _is_supported_city(
+                self.config_entry.data.get(CONF_API_KEY),
+                self.config_entry.data.get(CONF_LOCATION_NAME))
+            if (location_id != ONE_CALL_URI and
+                    user_input[CONF_MODE] == FORECAST_MODE_ONECALL_DAILY):
+                user_input[CONF_MODE] = FORECAST_MODE_ONECALL_HOURLY
+
             return self.async_create_entry(title="", data=user_input)
 
         return self.async_show_form(

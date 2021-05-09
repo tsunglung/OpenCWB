@@ -57,13 +57,15 @@ class WeatherManager:
                 return location_name.replace(i, "")
         return location_name
 
-    def weather_at_place(self, name):
+    def weather_at_place(self, name, interval):
         """
         Queries the OCWB Weather API for the currently observed weather at the
         specified toponym (eg: "London,uk")
 
         :param name: the location's toponym
         :type name: str
+        :param interval: the granularity of the forecast, among `3h` and 'daily'
+        :type interval: str among `3h` and 'daily'
         :returns: an *Observation* instance or ``None`` if no weather data is
             available
         :raises: *ParseResponseException* when OCWB Weather API responses' data
@@ -72,8 +74,16 @@ class WeatherManager:
         """
 
         assert isinstance(name, str), "Value must be a string"
-        params = {'q': name}
-        _, json_data = self.http_client.get_json(OBSERVATION_URI, params=params)
+        loc_id = self.supported_city(name)
+        if loc_id is None:
+            raise ValueError("%s is not support location".format(name))
+        params = {'locationName': name}
+        if interval == '3h':
+            uri = loc_id
+        elif interval == 'daily':
+            uri = loc_id[0:loc_id.rindex("-") + 1] + str(
+                int(loc_id[loc_id.rindex("-") + 1:]) + 2).zfill(3)
+        _, json_data = self.http_client.get_json(uri, params=params)
         return observation.Observation.from_dict(json_data)
 
     def weather_at_coords(self, lat, lon):
@@ -297,17 +307,21 @@ class WeatherManager:
         """
         assert isinstance(name, str), "Value must be a string"
         assert isinstance(interval, str), "Interval must be a string"
+        loc_id = self.supported_city(name)
+        if loc_id is None:
+            raise ValueError("%s is not support location".format(name))
         if limit is not None:
             assert isinstance(limit, int), "'limit' must be an int or None"
             if limit < 1:
                 raise ValueError("'limit' must be None or greater than zero")
-        params = {'q': name}
+        params = {'locationName': urllib.parse.quote_plus(name)}
         if limit is not None:
             params['cnt'] = limit
         if interval == '3h':
-            uri = THREE_HOURS_FORECAST_URI
+            uri = loc_id
         elif interval == 'daily':
-            uri = DAILY_FORECAST_URI
+            uri = loc_id[0:loc_id.rindex("-") + 1] + str(
+                int(loc_id[loc_id.rindex("-") + 1:]) + 2).zfill(3)
         else:
             raise ValueError("Unsupported time interval for forecast")
         _, json_data = self.http_client.get_json(uri, params=params)
@@ -384,9 +398,9 @@ class WeatherManager:
             cannot be parsed, *APICallException* when OCWB Weather API can not be
             reached
         """
-        assert type(id) is int, "'id' must be an int"
-        if id < 0:
-            raise ValueError("'id' value must be greater than 0")
+        assert type(id) is str, "'id' must be an string"
+        if id not in LOCATIONS:
+            raise ValueError("'id' value is not supported")
         assert isinstance(interval, str), "Interval must be a string"
         if limit is not None:
             assert isinstance(limit, int), "'limit' must be an int or None"
@@ -521,7 +535,9 @@ class WeatherManager:
             sh.interval = interval
         return sh
 
-    def one_call(self, lat: Union[int, float], lon: Union[int, float], loc: Union[str, None], **kwargs) -> one_call.OneCall:
+    def one_call(
+        self, lat: Union[int, float], lon: Union[int, float], loc: Union[str, None], **kwargs
+    ) -> one_call.OneCall:
         """
         Queries the OCWB Weather API with one call for current weather information and forecast for the
         specified geographic coordinates.
@@ -538,6 +554,8 @@ class WeatherManager:
         :type lon: int/float
         :param lon: location's name
         :type lon: str or None
+        :param intvl: internal
+        :type intrl: str or None
         :returns: a *OneCall* instance or ``None`` if the data is not
             available for the specified location
         :raises: *ParseResponseException* when OCWB Weather API responses' data
@@ -549,6 +567,10 @@ class WeatherManager:
 
         loc_id = self.supported_city(loc)
         loc = self.remove_city_name(loc)
+        uri = ONE_CALL_URI
+        if loc_id != ONE_CALL_URI:
+            uri = uri[0:uri.rindex("-") + 1] + str(
+                int(uri[uri.rindex("-") + 1:]) + 2).zfill(3)
         params = {
             'lon': lon,
             'lat': lat,
@@ -560,7 +582,7 @@ class WeatherManager:
             elif key == 'units':
                 params['units'] = value
 
-        _, json_data = self.http_client.get_json(ONE_CALL_URI, params=params)
+        _, json_data = self.http_client.get_json(uri, params=params)
 
         return one_call.OneCall.from_dict(json_data)
 

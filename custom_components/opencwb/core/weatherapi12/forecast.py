@@ -7,6 +7,7 @@ from ..commons import  exceptions
 from ..utils import timestamps, formatting
 from . import location
 from . import weather
+from ..utils.opendata_cwb import OpendataCWB
 
 
 class Forecast:
@@ -88,16 +89,14 @@ class Forecast:
         """
         if the_dict is None:
             raise exceptions.ParseAPIResponseError('JSON data is None')
-        # Check if server returned errors: this check overcomes the lack of use
-        # of HTTP error status codes by the OCWB API 2.5. This mechanism is
-        # supposed to be deprecated as soon as the API fully adopts HTTP for
-        # conveying errors to the clients
-        if 'message' in the_dict and 'cod' in the_dict:
-            if the_dict['cod'] == "404":
-                print("OCWB API: data not found - response payload", the_dict['cod'])
+        if 'success' in the_dict:
+            if not the_dict['success']:
                 return None
-            elif the_dict['cod'] != "200":
-                raise exceptions.APIResponseError("OCWB API: error - response payload", the_dict['cod'])
+            try:
+                the_dict = OpendataCWB.to_dict(the_dict)
+            except ValueError:
+                raise exceptions.ParseAPIResponseError(
+                    f"{__name__}: impossible to read weather info from input data")
         try:
             place = location.Location.from_dict(the_dict)
         except KeyError:
@@ -109,10 +108,11 @@ class Forecast:
         elif 'cnt' in the_dict and the_dict['cnt'] == 0:
             weathers = []
         else:
-            if 'list' in the_dict:
+            forecast_mode = "daily" if "daily" in the_dict else "hourly"
+            if len(the_dict[forecast_mode]) >= 1:
                 try:
                     weathers = [weather.Weather.from_dict(item) \
-                                for item in the_dict['list']]
+                                for item in the_dict[forecast_mode]]
                 except KeyError:
                     raise exceptions.ParseAPIResponseError(
                           ''.join([__name__, ': impossible to read weather info from JSON data'])
