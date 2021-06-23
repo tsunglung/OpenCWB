@@ -13,20 +13,16 @@ from homeassistant.const import (
     CONF_NAME,
 )
 from homeassistant.core import callback
-import homeassistant.helpers.config_validation as cv
 
 from .const import (
-    CONF_LANGUAGE,
     CONF_LOCATION_NAME,
     CONFIG_FLOW_VERSION,
     DEFAULT_FORECAST_MODE,
-    DEFAULT_LANGUAGE,
     DEFAULT_NAME,
     DOMAIN,
     FORECAST_MODES,
     FORECAST_MODE_ONECALL_HOURLY,
-    FORECAST_MODE_ONECALL_DAILY,
-    LANGUAGES,
+    FORECAST_MODE_ONECALL_DAILY
 )
 from .core.weatherapi12.uris import ONE_CALL_URI
 
@@ -48,16 +44,20 @@ class OpenCWBConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            latitude = user_input.get(CONF_LATITUDE, self.hass.config.latitude)
-            longitude = user_input.get(CONF_LONGITUDE, self.hass.config.longitude)
+            latitude = user_input.get(
+                CONF_LATITUDE, self.hass.config.latitude)
+            longitude = user_input.get(
+                CONF_LONGITUDE, self.hass.config.longitude)
             location_name = user_input.get(CONF_LOCATION_NAME, None)
-            location_id = _is_supported_city(user_input[CONF_API_KEY], location_name)
+            location_id = _is_supported_city(
+                user_input[CONF_API_KEY], location_name)
 
             if location_name and location_id is None:
                 errors["base"] = "invalid_location_name"
             else:
                 await self.async_set_unique_id(
-                    urllib.parse.quote_plus(location_name) + "-" + user_input[CONF_MODE])
+                    urllib.parse.quote_plus(
+                        location_name) + "-" + user_input[CONF_MODE])
                 self._abort_if_unique_id_configured()
 
                 if (location_id != ONE_CALL_URI and
@@ -66,7 +66,11 @@ class OpenCWBConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 try:
                     api_online = await _is_ocwb_api_online(
-                        self.hass, user_input[CONF_API_KEY], latitude, longitude, location_name
+                        self.hass,
+                        user_input[CONF_API_KEY],
+                        latitude,
+                        longitude,
+                        location_name
                     )
                     if not api_online:
                         errors["base"] = "invalid_api_key"
@@ -85,22 +89,23 @@ class OpenCWBConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_API_KEY): str,
                 vol.Optional(CONF_NAME, default=DEFAULT_NAME): str,
                 vol.Required(CONF_LOCATION_NAME): str,
-#                vol.Optional(
-#                    CONF_LATITUDE, default=self.hass.config.latitude
-#                ): cv.latitude,
-#                vol.Optional(
-#                    CONF_LONGITUDE, default=self.hass.config.longitude
-#                ): cv.longitude,
+                # vol.Optional(
+                #    CONF_LATITUDE, default=self.hass.config.latitude
+                # ): cv.latitude,
+                # vol.Optional(
+                #    CONF_LONGITUDE, default=self.hass.config.longitude
+                # ): cv.longitude,
                 vol.Optional(CONF_MODE, default=DEFAULT_FORECAST_MODE): vol.In(
                     FORECAST_MODES
                 ),
-#                vol.Optional(CONF_LANGUAGE, default=DEFAULT_LANGUAGE): vol.In(
-#                    LANGUAGES
-#                ),
+                # vol.Optional(CONF_LANGUAGE, default=DEFAULT_LANGUAGE): vol.In(
+                #     LANGUAGES
+                # ),
             }
         )
 
-        return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+        return self.async_show_form(
+            step_id="user", data_schema=schema, errors=errors)
 
 
 class OpenCWBOptionsFlow(config_entries.OptionsFlow):
@@ -136,12 +141,12 @@ class OpenCWBOptionsFlow(config_entries.OptionsFlow):
                         CONF_MODE, DEFAULT_FORECAST_MODE
                     ),
                 ): vol.In(FORECAST_MODES),
-#                vol.Optional(
-#                    CONF_LANGUAGE,
-#                    default=self.config_entry.options.get(
-#                        CONF_LANGUAGE, DEFAULT_LANGUAGE
-#                    ),
-#                ): vol.In(LANGUAGES),
+                # vol.Optional(
+                #     CONF_LANGUAGE,
+                #     default=self.config_entry.options.get(
+                #         ONF_LANGUAGE, DEFAULT_LANGUAGE
+                #     ),
+                # ): vol.In(LANGUAGES),
             }
         )
 
@@ -149,6 +154,7 @@ class OpenCWBOptionsFlow(config_entries.OptionsFlow):
 async def _is_ocwb_api_online(hass, api_key, lat, lon, loc):
     ocwb = OCWB(api_key).weather_manager()
     return await hass.async_add_executor_job(ocwb.one_call, lat, lon, loc)
+
 
 def _is_supported_city(api_key, loc):
     ocwb = OCWB(api_key).weather_manager()

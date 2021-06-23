@@ -63,7 +63,11 @@ class OpenCWBSensor(AbstractOpenCWBSensor):
     ):
         """Initialize the sensor."""
         super().__init__(
-            name, unique_id, sensor_type, sensor_configuration, weather_coordinator
+            name,
+            unique_id,
+            sensor_type,
+            sensor_configuration,
+            weather_coordinator
         )
         self._weather_coordinator = weather_coordinator
 
@@ -86,7 +90,11 @@ class OpenCWBForecastSensor(AbstractOpenCWBSensor):
     ):
         """Initialize the sensor."""
         super().__init__(
-            name, unique_id, sensor_type, sensor_configuration, weather_coordinator
+            name,
+            unique_id,
+            sensor_type,
+            sensor_configuration,
+            weather_coordinator
         )
         self._weather_coordinator = weather_coordinator
 

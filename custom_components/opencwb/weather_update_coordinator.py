@@ -1,4 +1,5 @@
 """Weather data coordinator for the OpenCWB (OCWB) service."""
+# pylint: disable=line too long
 from datetime import timedelta
 import logging
 
@@ -19,7 +20,10 @@ from homeassistant.components.weather import (
     ATTR_FORECAST_WIND_SPEED,
 )
 from homeassistant.helpers import sun
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import (
+    DataUpdateCoordinator,
+    UpdateFailed
+)
 from homeassistant.util import dt
 
 from .const import (
@@ -56,7 +60,13 @@ WEATHER_UPDATE_INTERVAL = timedelta(minutes=15)
 class WeatherUpdateCoordinator(DataUpdateCoordinator):
     """Weather data update coordinator."""
 
-    def __init__(self, ocwb, location_name, latitude, longitude, forecast_mode, hass):
+    def __init__(self,
+                 ocwb,
+                 location_name,
+                 latitude,
+                 longitude,
+                 forecast_mode,
+                 hass):
         """Initialize coordinator."""
         self._ocwb_client = ocwb
         self._location_name = location_name
@@ -69,7 +79,10 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             self._forecast_limit = 15
 
         super().__init__(
-            hass, _LOGGER, name=DOMAIN, update_interval=WEATHER_UPDATE_INTERVAL
+            hass,
+            _LOGGER,
+            name=DOMAIN,
+            update_interval=WEATHER_UPDATE_INTERVAL
         )
 
     async def _async_update_data(self):
@@ -89,7 +102,10 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             or self._forecast_mode == FORECAST_MODE_ONECALL_DAILY
         ):
             weather = await self.hass.async_add_executor_job(
-                self._ocwb_client.one_call, self._latitude, self._longitude, self._location_name
+                self._ocwb_client.one_call,
+                self._latitude,
+                self._longitude,
+                self._location_name
             )
         else:
             weather = await self.hass.async_add_executor_job(
@@ -101,7 +117,8 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
     def _get_legacy_weather_and_forecast(self):
         """Get weather and forecast data from Opendata CWB."""
         interval = self._get_forecast_interval()
-        weather = self._ocwb_client.weather_at_place(self._location_name, interval)
+        weather = self._ocwb_client.weather_at_place(
+            self._location_name, interval)
         forecast = self._ocwb_client.forecast_at_place(
             self._location_name, interval, self._forecast_limit
         )
@@ -117,12 +134,13 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
     def _convert_weather_response(self, weather_response):
         """Format the weather response correctly."""
         current_weather = weather_response.current
-        forecast_weather = self._get_forecast_from_weather_response(weather_response)
+        forecast_weather = self._get_forecast_from_weather_response(
+            weather_response)
         return {
-            ATTR_API_TEMPERATURE: current_weather.temperature("celsius").get("temp"),
-            ATTR_API_FEELS_LIKE_TEMPERATURE: current_weather.temperature("celsius").get(
-                "feels_like"
-            ),
+            ATTR_API_TEMPERATURE: current_weather.temperature(
+                "celsius").get("temp"),
+            ATTR_API_FEELS_LIKE_TEMPERATURE: current_weather.temperature(
+                "celsius").get("feels_like"),
             ATTR_API_DEW_POINT: self._fmt_dewpoint(current_weather.dewpoint),
             ATTR_API_PRESSURE: current_weather.pressure.get("press"),
             ATTR_API_HUMIDITY: current_weather.humidity,
@@ -135,7 +153,8 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 current_weather.rain, current_weather.snow
             ),
             ATTR_API_WEATHER: current_weather.detailed_status,
-            ATTR_API_CONDITION: self._get_condition(current_weather.weather_code),
+            ATTR_API_CONDITION: self._get_condition(
+                current_weather.weather_code),
             ATTR_API_UV_INDEX: current_weather.uvi,
             ATTR_API_WEATHER_CODE: current_weather.weather_code,
             ATTR_API_FORECAST: forecast_weather,
@@ -149,7 +168,8 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             forecast_arg = "forecast_daily"
 
         return [
-            self._convert_forecast(x) for x in getattr(weather_response, forecast_arg)
+            self._convert_forecast(x) for x in getattr(
+                weather_response, forecast_arg)
         ]
 
     def _convert_forecast(self, entry):
@@ -173,10 +193,13 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
 
         temperature_dict = entry.temperature("celsius")
         if "max" in temperature_dict and "min" in temperature_dict:
-            forecast[ATTR_FORECAST_TEMP] = entry.temperature("celsius").get("max")
-            forecast[ATTR_FORECAST_TEMP_LOW] = entry.temperature("celsius").get("min")
+            forecast[ATTR_FORECAST_TEMP] = entry.temperature(
+                "celsius").get("max")
+            forecast[ATTR_FORECAST_TEMP_LOW] = entry.temperature(
+                "celsius").get("min")
         else:
-            forecast[ATTR_FORECAST_TEMP] = entry.temperature("celsius").get("temp")
+            forecast[ATTR_FORECAST_TEMP] = entry.temperature(
+                "celsius").get("temp")
 
         return forecast
 

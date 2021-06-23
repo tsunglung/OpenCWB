@@ -1,0 +1,7 @@
+matrix:
+  - name: Python Source
+    aspell:
+      lang: en
+      d: en_US
+    sources:
+    - '**/*.md'

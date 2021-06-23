@@ -18,14 +18,14 @@ from homeassistant.core import HomeAssistant
 from .const import (
     CONF_LANGUAGE,
     CONF_LOCATION_NAME,
-    CONFIG_FLOW_VERSION,
+    # CONFIG_FLOW_VERSION,
     DEFAULT_FORECAST_MODE,
     DEFAULT_LANGUAGE,
     DOMAIN,
     ENTRY_NAME,
     ENTRY_WEATHER_COORDINATOR,
-    FORECAST_MODE_FREE_DAILY,
-    FORECAST_MODE_ONECALL_DAILY,
+    # FORECAST_MODE_FREE_DAILY,
+    # FORECAST_MODE_ONECALL_DAILY,
     PLATFORMS,
     UPDATE_LISTENER,
 )
@@ -47,7 +47,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     location_name = config_entry.data.get(CONF_LOCATION_NAME, None)
     latitude = config_entry.data.get(CONF_LATITUDE, hass.config.latitude)
     longitude = config_entry.data.get(CONF_LONGITUDE, hass.config.longitude)
-    forecast_mode = _get_config_value(config_entry, CONF_MODE, DEFAULT_FORECAST_MODE)
+    forecast_mode = _get_config_value(
+        config_entry, CONF_MODE, DEFAULT_FORECAST_MODE)
     language = _get_config_value(config_entry, CONF_LANGUAGE, DEFAULT_LANGUAGE)
 
     config_dict = _get_ocwb_config(language)
@@ -67,7 +68,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
     for platform in PLATFORMS:
         hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(config_entry, platform)
+            hass.config_entries.async_forward_entry_setup(
+                config_entry, platform)
         )
 
     update_listener = config_entry.add_update_listener(async_update_options)
@@ -86,13 +88,15 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     unload_ok = all(
         await asyncio.gather(
             *[
-                hass.config_entries.async_forward_entry_unload(config_entry, platform)
+                hass.config_entries.async_forward_entry_unload(
+                    config_entry, platform)
                 for platform in PLATFORMS
             ]
         )
     )
     if unload_ok:
-        update_listener = hass.data[DOMAIN][config_entry.entry_id][UPDATE_LISTENER]
+        update_listener = hass.data[
+            DOMAIN][config_entry.entry_id][UPDATE_LISTENER]
         update_listener()
         hass.data[DOMAIN].pop(config_entry.entry_id)
 

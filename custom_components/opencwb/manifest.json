@@ -3,7 +3,8 @@
   "name": "OpenCWB",
   "config_flow": true,
   "version": "1.0.0",
-  "documentation": "https://opendata.cwb.gov.tw/devManual/insrtuction",
+  "documentation": "https://opendata.cwb.gov.tw/devManu,al/insrtuction",
+  "issue_tracker": "https://github.com/tsunglung/OpenCWB/issues",
   "requirements": ["geojson"],
   "codeowners": ["@tsunglung"],
   "iot_class": "cloud_polling"

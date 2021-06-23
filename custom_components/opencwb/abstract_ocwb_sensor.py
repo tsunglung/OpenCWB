@@ -49,7 +49,8 @@ class AbstractOpenCWBSensor(SensorEntity):
         """Return the device info."""
         split_unique_id = self._unique_id.split("-")
         return {
-            "identifiers": {(DOMAIN, f"{split_unique_id[0]}-{split_unique_id[1]}")},
+            "identifiers": {
+                (DOMAIN, f"{split_unique_id[0]}-{split_unique_id[1]}")},
             "name": DEFAULT_NAME,
             "manufacturer": MANUFACTURER,
             "entry_type": "service",
