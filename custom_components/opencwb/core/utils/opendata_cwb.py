@@ -74,7 +74,8 @@ class OpendataCWB:
             elif "MaxCI" == i["elementName"]:
                 value["calc"]["heatindex"] = int(element_value[0]["value"])
             elif "WS" == i["elementName"]:
-                value["wind_speed"] = int(element_value[0]["value"])
+                value["wind_speed"] = int(''.join(
+                    k for k in element_value[0]["value"] if k.isdigit()))
                 value["wind_gust"] = int(''.join(
                     c for c in element_value[1]["value"] if c.isdigit()))
             elif "WD" == i["elementName"]:
