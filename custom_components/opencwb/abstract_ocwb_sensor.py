@@ -2,6 +2,8 @@
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import ATTR_ATTRIBUTION
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.device_registry import DeviceEntryType
+from homeassistant.helpers.entity import DeviceInfo
 
 from .const import (
     ATTRIBUTION,
@@ -26,36 +28,20 @@ class AbstractOpenCWBSensor(SensorEntity):
         coordinator: DataUpdateCoordinator,
     ):
         """Initialize the sensor."""
-        self._name = name
-        self._unique_id = unique_id
+        self._attr_name = name
+        self._attr_unique_id = unique_id
         self._sensor_type = sensor_type
         self._sensor_name = sensor_configuration[SENSOR_NAME]
         self._unit_of_measurement = sensor_configuration.get(SENSOR_UNIT)
         self._device_class = sensor_configuration.get(SENSOR_DEVICE_CLASS)
         self._coordinator = coordinator
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"{self._name} {self._sensor_name}"
-
-    @property
-    def unique_id(self):
-        """Return a unique_id for this entity."""
-        return self._unique_id
-
-    @property
-    def device_info(self):
-        """Return the device info."""
-        split_unique_id = self._unique_id.split("-")
-        return {
-            "identifiers": {
-                (DOMAIN, f"{split_unique_id[0]}-{split_unique_id[1]}")},
-            "name": DEFAULT_NAME,
-            "manufacturer": MANUFACTURER,
-            "entry_type": "service",
-            "model": "Forecast",
-        }
+        split_unique_id = unique_id.split("-")
+        self._attr_device_info = DeviceInfo(
+            entry_type=DeviceEntryType.SERVICE,
+            identifiers={(DOMAIN, f"{split_unique_id[0]}-{split_unique_id[1]}")},
+            manufacturer=MANUFACTURER,
+            name=DEFAULT_NAME,
+        )
 
     @property
     def should_poll(self):

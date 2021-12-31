@@ -2,6 +2,8 @@
 from homeassistant.components.weather import WeatherEntity
 from homeassistant.const import PRESSURE_HPA, PRESSURE_INHG, TEMP_CELSIUS
 from homeassistant.util.pressure import convert as pressure_convert
+from homeassistant.helpers.device_registry import DeviceEntryType
+from homeassistant.helpers.entity import DeviceInfo
 
 from .const import (
     ATTR_API_CONDITION,
@@ -43,30 +45,15 @@ class OpenCWBWeather(WeatherEntity):
         weather_coordinator: WeatherUpdateCoordinator,
     ):
         """Initialize the sensor."""
-        self._name = name
-        self._unique_id = unique_id
+        self._attr_name = name
+        self._attr_unique_id = unique_id
         self._weather_coordinator = weather_coordinator
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def unique_id(self):
-        """Return a unique_id for this entity."""
-        return self._unique_id
-
-    @property
-    def device_info(self):
-        """Return the device info."""
-        return {
-            "identifiers": {(DOMAIN, self._unique_id)},
-            "name": DEFAULT_NAME,
-            "manufacturer": MANUFACTURER,
-            "entry_type": "service",
-            "model": "Forecast",
-        }
+        self._attr_device_info = DeviceInfo(
+            entry_type=DeviceEntryType.SERVICE,
+            identifiers={(DOMAIN, unique_id)},
+            manufacturer=MANUFACTURER,
+            name=DEFAULT_NAME,
+        )
 
     @property
     def should_poll(self):
