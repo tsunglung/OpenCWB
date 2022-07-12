@@ -71,49 +71,6 @@ class OpenCWBWeather(WeatherEntity):
         return self._weather_coordinator.data[ATTR_API_CONDITION]
 
     @property
-    def temperature(self):
-        """Return the temperature."""
-        return self._weather_coordinator.data[ATTR_API_TEMPERATURE]
-
-    @property
-    def temperature_unit(self):
-        """Return the unit of measurement."""
-        return TEMP_CELSIUS
-
-    @property
-    def pressure(self):
-        """Return the pressure."""
-        pressure = self._weather_coordinator.data[ATTR_API_PRESSURE]
-        # OpenWeatherMap returns pressure in hPA, so convert to
-        # inHg if we aren't using metric.
-        if not self.hass.config.units.is_metric and pressure:
-            return pressure_convert(pressure, PRESSURE_HPA, PRESSURE_INHG)
-        return pressure
-
-    @property
-    def humidity(self):
-        """Return the humidity."""
-        return self._weather_coordinator.data[ATTR_API_HUMIDITY]
-
-    @property
-    def wind_speed(self):
-        """Return the wind speed."""
-        wind_speed = self._weather_coordinator.data[ATTR_API_WIND_SPEED]
-        if self.hass.config.units.name == "imperial":
-            return round(wind_speed * 2.24, 2)
-        return round(wind_speed * 3.6, 2)
-
-    @property
-    def wind_bearing(self):
-        """Return the wind bearing."""
-        return self._weather_coordinator.data[ATTR_API_WIND_BEARING]
-
-    @property
-    def forecast(self):
-        """Return the forecast array."""
-        return self._weather_coordinator.data[ATTR_API_FORECAST]
-
-    @property
     def available(self):
         """Return True if entity is available."""
         return self._weather_coordinator.last_update_success
@@ -127,4 +84,24 @@ class OpenCWBWeather(WeatherEntity):
 
     async def async_update(self):
         """Get the latest data from OCWB and updates the states."""
+        self._attr_temperature_unit = TEMP_CELSIUS
+        self._attr_wind_speed_unit = self.anws_aoaws_now.wind_speed.units
+
+        self._attr_forecast = self._weather_coordinator.data[ATTR_API_FORECAST]
+        self._attr_temperature = self._weather_coordinator.data[ATTR_API_TEMPERATURE]
+        pressure = self._weather_coordinator.data[ATTR_API_PRESSURE]
+
+        # OpenWeatherMap returns pressure in hPA, so convert to
+        # inHg if we aren't using metric.
+        if not self.hass.config.units.is_metric and pressure:
+            self._attr_pressure = pressure_convert(pressure, PRESSURE_HPA, PRESSURE_INHG)
+        self._attr_pressure = pressure
+
+        wind_speed = self._weather_coordinator.data[ATTR_API_WIND_SPEED]
+        if self.hass.config.units.name == "imperial":
+            self._attr_wind_speed = round(wind_speed * 2.24, 2)
+        self._attr_wind_speed = round(wind_speed * 3.6, 2)
+        self._attr_humidity = self._weather_coordinator.data[ATTR_API_HUMIDITY]
+        self._attr_wind_bearing = self._weather_coordinator.data[ATTR_API_WIND_BEARING]
+
         await self._weather_coordinator.async_request_refresh()
