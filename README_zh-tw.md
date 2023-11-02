@@ -1,6 +1,6 @@
 <a href="https://www.buymeacoffee.com/tsunglung" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="30" width="120"></a>
 
-中央氣象局-開放資料平臺 [Opendata CWB](https://opendata.cwb.gov.tw/index) 支援 Home Assistant
+中央氣象署-開放資料平臺 [Opendata CWA](https://opendata.cwb.gov.tw/index)(前身 中央氣象局) 支援 Home Assistant
 
 
 這個整合是基於 [OpenWeatherMap](https://openweathermap.org) ([@csparpa](https://pypi.org/user/csparpa), [pyowm](https://github.com/csparpa/pyowm)) 所做的開發。
@@ -15,8 +15,8 @@
 
 # 設置
 
-**在 Opendata CWB 申請 API 授權碼**
-1. 打開 [Opendata CWB](https://opendata.cwb.gov.tw/devManual/insrtuction) 的網站
+**在 Opendata CWA 申請 API 授權碼**
+1. 打開 [Opendata CWA](https://opendata.cwa.gov.tw/devManual/insrtuction) 的網站
 2. 註冊/登入您的帳號
 3. 取得您個人的 API 授權碼
 
@@ -25,11 +25,11 @@
 **請使用 Home Assistant 整合設定**
 
 
-1. 從 GUI. 設定 > 整合 > 新增 整合 > OpneCWB
-   1. 如果 OpenCWB 沒有出現在清單裡，請 重新整理 (REFRESH) 網頁。
-   2. 如果 OpenCWB 還是沒有出現在清單裡，請清除瀏覽器的快取 (Cache)。
+1. 從 GUI. 設定 > 整合 > 新增 整合 > OpneCWA
+   1. 如果 OpenCWA 沒有出現在清單裡，請 重新整理 (REFRESH) 網頁。
+   2. 如果 OpenCWA 還是沒有出現在清單裡，請清除瀏覽器的快取 (Cache)。
 2. 輸入 API 授權碼.
-3. 輸入台灣的郷鎮市的名稱。 請參考在 [文件](https://opendata.cwb.gov.tw/opendatadoc/CWB_Opendata_API_V1.2.pdf) 附錄 A 裡的名稱。
+3. 輸入台灣的郷鎮市的名稱。 請參考在 [文件](https://opendata.cwa.gov.tw/opendatadoc/insrtuction/CWA_Data_Standard.pdf) 附錄 A 裡的名稱。
    1. 如果，是下列鄉鎮市，則需要包含城市名，例如，是東區，要打 嘉義市東區 或是 臺中市東區。
    2. 北區 西區 東區 中區 南區 信義區 中正區 中山區 大安區
 

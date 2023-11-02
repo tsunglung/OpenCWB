@@ -1,6 +1,6 @@
 <a href="https://www.buymeacoffee.com/tsunglung" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="30" width="120"></a>
 
-Home assistant support for [Opendata CWB](https://opendata.cwb.gov.tw/index). [The readme in Traditional Chinese](https://github.com/tsunglung/OpenCWB/blob/master/README_zh-tw.md).
+Home assistant support for [Opendata CWA](https://opendata.cwa.gov.tw/index) (prvious Opendata CWB). [The readme in Traditional Chinese](https://github.com/tsunglung/OpenCWB/blob/master/README_zh-tw.md).
 
 
 This integration is based on [OpenWeatherMap](https://openweathermap.org) ([@csparpa](https://pypi.org/user/csparpa), [pyowm](https://github.com/csparpa/pyowm)) to develop.
@@ -15,8 +15,8 @@ Then restart HA.
 
 # Setup
 
-**Apply a API key in Opendata CWB**
-1. Open the [Opendata CWB](https://opendata.cwb.gov.tw/devManual/insrtuction) Web Site
+**Apply a API key in Opendata CWA**
+1. Open the [Opendata CWA](https://opendata.cwa.gov.tw/devManual/insrtuction) Web Site
 2. Register your account
 3. Get your personal API Key.
 
@@ -25,11 +25,11 @@ Then restart HA.
 **Please use the config flow of Home Assistant**
 
 
-1. With GUI. Configuration > Integration > Add Integration > OpneCWB
+1. With GUI. Configuration > Integration > Add Integration > OpneCWA
    1. If the integration didn't show up in the list please REFRESH the page
    2. If the integration is still not in the list, you need to clear the browser cache.
 2. Enter API key.
-3. Enter the location name of Taiwan. Please reference to the name in the [doc](https://opendata.cwb.gov.tw/opendatadoc/CWB_Opendata_API_V1.2.pdf) appendix A.
+3. Enter the location name of Taiwan. Please reference to the name in the [doc](https://opendata.cwa.gov.tw/opendatadoc/insrtuction/CWA_Data_Standard.pdf) appendix A.
    1. Some location name need to include the city name.
 
 Buy Me A Coffee
