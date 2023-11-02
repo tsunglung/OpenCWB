@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-ROOT_WEATHER_API = 'opendata.cwb.gov.tw/api/v1/rest/datastore'
+ROOT_WEATHER_API = 'opendata.cwa.gov.tw/api/v1/rest/datastore'
 OBSERVATION_URI = 'O-A0003-001'
 GROUP_OBSERVATIONS_URI = 'O-A0001-001'
 STATION_URI = 'station'
