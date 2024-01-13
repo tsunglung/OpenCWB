@@ -1,6 +1,6 @@
 """Support for the OpenCWB (OCWB) service."""
 from homeassistant.components.weather import WeatherEntity
-from homeassistant.const import PRESSURE_HPA, PRESSURE_INHG, TEMP_CELSIUS
+from homeassistant.const import UnitOfPressure, UnitOfTemperature
 from homeassistant.util.unit_conversion import PressureConverter
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
@@ -84,7 +84,7 @@ class OpenCWBWeather(WeatherEntity):
 
     async def async_update(self):
         """Get the latest data from OCWB and updates the states."""
-        self._attr_temperature_unit = TEMP_CELSIUS
+        self._attr_temperature_unit = UnitOfTemperature.CELSIUS
         self._attr_wind_speed_unit = self.anws_aoaws_now.wind_speed.units
 
         self._attr_forecast = self._weather_coordinator.data[ATTR_API_FORECAST]
@@ -94,7 +94,7 @@ class OpenCWBWeather(WeatherEntity):
         # OpenWeatherMap returns pressure in hPA, so convert to
         # inHg if we aren't using metric.
         if not self.hass.config.units.is_metric and pressure:
-            self._attr_pressure = PressureConverter.convert(pressure, PRESSURE_HPA, PRESSURE_INHG)
+            self._attr_pressure = PressureConverter(pressure, UnitOfPressure.HPA, UnitOfPressure.INHG)
         self._attr_pressure = pressure
 
         wind_speed = self._weather_coordinator.data[ATTR_API_WIND_SPEED]
