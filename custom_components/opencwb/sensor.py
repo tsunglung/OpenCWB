@@ -27,7 +27,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         unique_id = f"{config_entry.unique_id}-{sensor_type}"
         entities.append(
             OpenCWBSensor(
-                name,
+                f"{name} {sensor_type}",
                 unique_id,
                 sensor_type,
                 weather_sensor_types[sensor_type],
@@ -39,7 +39,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         unique_id = f"{config_entry.unique_id}-forecast-{sensor_type}"
         entities.append(
             OpenCWBForecastSensor(
-                f"{name} Forecast",
+                f"{name} Forecast {sensor_type}",                
                 unique_id,
                 sensor_type,
                 forecast_sensor_types[sensor_type],
@@ -70,6 +70,9 @@ class OpenCWBSensor(AbstractOpenCWBSensor):
             weather_coordinator
         )
         self._weather_coordinator = weather_coordinator
+        self._attr_name = name.replace("_", " ")
+        self._attr_unique_id = unique_id
+
 
     @property
     def state(self):
@@ -97,6 +100,8 @@ class OpenCWBForecastSensor(AbstractOpenCWBSensor):
             weather_coordinator
         )
         self._weather_coordinator = weather_coordinator
+        self._attr_name = name.replace("_", " ")
+        self._attr_unique_id = unique_id
 
     @property
     def state(self):
