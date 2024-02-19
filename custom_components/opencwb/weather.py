@@ -1,9 +1,12 @@
 """Support for the OpenCWB (OCWB) service."""
-from homeassistant.components.weather import WeatherEntity
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.components.weather import Forecast, WeatherEntityFeature, SingleCoordinatorWeatherEntity
 from homeassistant.const import UnitOfPressure, UnitOfTemperature
 from homeassistant.util.unit_conversion import PressureConverter
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
     ATTR_API_CONDITION,
@@ -18,12 +21,18 @@ from .const import (
     DOMAIN,
     ENTRY_NAME,
     ENTRY_WEATHER_COORDINATOR,
+    FORECAST_MODE_DAILY,
+    FORECAST_MODE_ONECALL_DAILY,
     MANUFACTURER,
 )
 from .weather_update_coordinator import WeatherUpdateCoordinator
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+):
     """Set up OpenCWB weather entity based on a config entry."""
     domain_data = hass.data[DOMAIN][config_entry.entry_id]
     name = domain_data[ENTRY_NAME]
@@ -35,7 +44,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     async_add_entities([ocwb_weather], False)
 
 
-class OpenCWBWeather(WeatherEntity):
+class OpenCWBWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
     """Implementation of an OpenCWB sensor."""
 
     def __init__(
@@ -54,6 +63,13 @@ class OpenCWBWeather(WeatherEntity):
             manufacturer=MANUFACTURER,
             name=DEFAULT_NAME,
         )
+        if weather_coordinator.forecast_mode in (
+            FORECAST_MODE_DAILY,
+            FORECAST_MODE_ONECALL_DAILY,
+        ):
+            self._attr_supported_features = WeatherEntityFeature.FORECAST_DAILY
+        else:  # FORECAST_MODE_DAILY or FORECAST_MODE_ONECALL_HOURLY
+            self._attr_supported_features = WeatherEntityFeature.FORECAST_HOURLY
 
     @property
     def should_poll(self):
@@ -82,12 +98,26 @@ class OpenCWBWeather(WeatherEntity):
                 self.async_write_ha_state)
         )
 
+    @property
+    def forecast(self) -> list[Forecast] | None:
+        """Return the forecast array."""
+        return self._weather_coordinator.data[ATTR_API_FORECAST]
+
+    @callback
+    def _async_forecast_daily(self) -> list[Forecast] | None:
+        """Return the daily forecast in native units."""
+        return self.forecast
+
+    @callback
+    def _async_forecast_hourly(self) -> list[Forecast] | None:
+        """Return the hourly forecast in native units."""
+        return self.forecast
+
     async def async_update(self):
         """Get the latest data from OCWB and updates the states."""
         self._attr_temperature_unit = UnitOfTemperature.CELSIUS
         self._attr_wind_speed_unit = self.anws_aoaws_now.wind_speed.units
 
-        self._attr_forecast = self._weather_coordinator.data[ATTR_API_FORECAST]
         self._attr_temperature = self._weather_coordinator.data[ATTR_API_TEMPERATURE]
         pressure = self._weather_coordinator.data[ATTR_API_PRESSURE]
 

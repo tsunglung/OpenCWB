@@ -72,7 +72,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         self._location_name = location_name
         self._latitude = latitude
         self._longitude = longitude
-        self._forecast_mode = forecast_mode
+        self.forecast_mode = forecast_mode
         self._forecast_limit = None
 
         if forecast_mode == FORECAST_MODE_DAILY:
@@ -98,8 +98,8 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
     async def _get_ocwb_weather(self):
         """Poll weather data from Opendata CWB."""
         if (
-            self._forecast_mode == FORECAST_MODE_ONECALL_HOURLY
-            or self._forecast_mode == FORECAST_MODE_ONECALL_DAILY
+            self.forecast_mode == FORECAST_MODE_ONECALL_HOURLY
+            or self.forecast_mode == FORECAST_MODE_ONECALL_DAILY
         ):
             weather = await self.hass.async_add_executor_job(
                 self._ocwb_client.one_call,
@@ -127,7 +127,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
     def _get_forecast_interval(self):
         """Get the correct forecast interval depending on the forecast mode."""
         interval = "daily"
-        if self._forecast_mode == FORECAST_MODE_HOURLY:
+        if self.forecast_mode == FORECAST_MODE_HOURLY:
             interval = "3h"
         return interval
 
@@ -162,9 +162,9 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
 
     def _get_forecast_from_weather_response(self, weather_response):
         forecast_arg = "forecast"
-        if self._forecast_mode == FORECAST_MODE_ONECALL_HOURLY:
+        if self.forecast_mode == FORECAST_MODE_ONECALL_HOURLY:
             forecast_arg = "forecast_hourly"
-        elif self._forecast_mode == FORECAST_MODE_ONECALL_DAILY:
+        elif self.forecast_mode == FORECAST_MODE_ONECALL_DAILY:
             forecast_arg = "forecast_daily"
 
         return [
