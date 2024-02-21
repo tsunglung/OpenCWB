@@ -32,6 +32,10 @@ from .const import (
     ATTR_API_DEW_POINT,
     ATTR_API_FEELS_LIKE_TEMPERATURE,
     ATTR_API_FORECAST,
+    ATTR_API_FORECAST_CLOUDS,
+    ATTR_API_FORECAST_CONDITION,
+    ATTR_API_FORECAST_FEELS_LIKE_TEMPERATURE,
+    ATTR_API_FORECAST_HUMIDITY,
     ATTR_API_HUMIDITY,
     ATTR_API_PRECIPITATION_KIND,
     ATTR_API_PRESSURE,
@@ -42,6 +46,7 @@ from .const import (
     ATTR_API_WEATHER,
     ATTR_API_WEATHER_CODE,
     ATTR_API_WIND_BEARING,
+    ATTR_API_WIND_GUST,
     ATTR_API_WIND_SPEED,
     CONDITION_CLASSES,
     DOMAIN,
@@ -145,6 +150,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             ATTR_API_PRESSURE: current_weather.pressure.get("press"),
             ATTR_API_HUMIDITY: current_weather.humidity,
             ATTR_API_WIND_BEARING: current_weather.wind().get("deg"),
+            ATTR_API_WIND_GUST: current_weather.wind().get("gust"),
             ATTR_API_WIND_SPEED: current_weather.wind().get("speed"),
             ATTR_API_CLOUDS: current_weather.clouds,
             ATTR_API_RAIN: self._get_rain(current_weather.rain),
@@ -186,9 +192,14 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             ATTR_FORECAST_PRESSURE: entry.pressure.get("press"),
             ATTR_FORECAST_WIND_SPEED: entry.wind().get("speed"),
             ATTR_FORECAST_WIND_BEARING: entry.wind().get("deg"),
-            ATTR_FORECAST_CONDITION: self._get_condition(
+            ATTR_API_FORECAST_CONDITION: self._get_condition(
                 entry.weather_code, entry.reference_time("unix")
             ),
+            ATTR_API_FORECAST_CLOUDS: entry.clouds,
+            ATTR_API_FORECAST_FEELS_LIKE_TEMPERATURE: entry.temperature("celsius").get(
+                "feels_like_day"
+            ),
+            ATTR_API_FORECAST_HUMIDITY: entry.humidity,
         }
 
         temperature_dict = entry.temperature("celsius")

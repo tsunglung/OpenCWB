@@ -9,12 +9,16 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
+    ATTR_API_CLOUDS,
     ATTR_API_CONDITION,
+    ATTR_API_DEW_POINT,
+    ATTR_API_FEELS_LIKE_TEMPERATURE,
     ATTR_API_FORECAST,
     ATTR_API_HUMIDITY,
     ATTR_API_PRESSURE,
     ATTR_API_TEMPERATURE,
     ATTR_API_WIND_BEARING,
+    ATTR_API_WIND_GUST,
     ATTR_API_WIND_SPEED,
     ATTRIBUTION,
     DEFAULT_NAME,
@@ -97,6 +101,51 @@ class OpenCWBWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
             self._weather_coordinator.async_add_listener(
                 self.async_write_ha_state)
         )
+
+    @property
+    def cloud_coverage(self) -> float | None:
+        """Return the Cloud coverage in %."""
+        return self._weather_coordinator.data[ATTR_API_CLOUDS]
+
+    @property
+    def native_apparent_temperature(self) -> float | None:
+        """Return the apparent temperature."""
+        return self._weather_coordinator.data[ATTR_API_FEELS_LIKE_TEMPERATURE]
+
+    @property
+    def native_temperature(self) -> float | None:
+        """Return the temperature."""
+        return self._weather_coordinator.data[ATTR_API_TEMPERATURE]
+
+    @property
+    def native_pressure(self) -> float | None:
+        """Return the pressure."""
+        return self._weather_coordinator.data[ATTR_API_PRESSURE]
+
+    @property
+    def humidity(self) -> float | None:
+        """Return the humidity."""
+        return self._weather_coordinator.data[ATTR_API_HUMIDITY]
+
+    @property
+    def native_dew_point(self) -> float | None:
+        """Return the dew point."""
+        return self._weather_coordinator.data[ATTR_API_DEW_POINT]
+
+    @property
+    def native_wind_gust_speed(self) -> float | None:
+        """Return the wind gust speed."""
+        return self._weather_coordinator.data[ATTR_API_WIND_GUST]
+
+    @property
+    def native_wind_speed(self) -> float | None:
+        """Return the wind speed."""
+        return self._weather_coordinator.data[ATTR_API_WIND_SPEED]
+
+    @property
+    def wind_bearing(self) -> float | str | None:
+        """Return the wind bearing."""
+        return self._weather_coordinator.data[ATTR_API_WIND_BEARING]
 
     @property
     def forecast(self) -> list[Forecast] | None:
