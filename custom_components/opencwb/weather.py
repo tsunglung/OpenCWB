@@ -58,6 +58,7 @@ class OpenCWBWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         weather_coordinator: WeatherUpdateCoordinator,
     ):
         """Initialize the sensor."""
+        super().__init__(weather_coordinator)
         self._attr_name = name
         self._attr_unique_id = unique_id
         self._weather_coordinator = weather_coordinator

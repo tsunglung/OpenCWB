@@ -197,17 +197,22 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             ),
             ATTR_API_FORECAST_CLOUDS: entry.clouds,
             ATTR_API_FORECAST_FEELS_LIKE_TEMPERATURE: entry.temperature("celsius").get(
-                "feels_like_day"
+                "feels_like"
             ),
             ATTR_API_FORECAST_HUMIDITY: entry.humidity,
         }
 
         temperature_dict = entry.temperature("celsius")
-        if "max" in temperature_dict and "min" in temperature_dict:
+        if temperature_dict.get("max") and temperature_dict.get("min"):
             forecast[ATTR_FORECAST_TEMP] = entry.temperature(
                 "celsius").get("max")
             forecast[ATTR_FORECAST_TEMP_LOW] = entry.temperature(
                 "celsius").get("min")
+        elif temperature_dict.get("temp_max") and temperature_dict.get("temp_min"):
+            forecast[ATTR_FORECAST_TEMP] = entry.temperature(
+                "celsius").get("temp_max")
+            forecast[ATTR_FORECAST_TEMP_LOW] = entry.temperature(
+                "celsius").get("temp_min")
         else:
             forecast[ATTR_FORECAST_TEMP] = entry.temperature(
                 "celsius").get("temp")
