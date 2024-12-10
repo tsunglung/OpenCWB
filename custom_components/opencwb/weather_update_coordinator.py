@@ -92,12 +92,12 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         data = {}
-        with async_timeout.timeout(300):
-            try:
-                weather_response = await self._get_ocwb_weather()
-                data = self._convert_weather_response(weather_response)
-            except (APIRequestError, UnauthorizedError) as error:
-                raise UpdateFailed(error) from error
+        try:
+            weather_response = await self._get_ocwb_weather()
+            data = self._convert_weather_response(weather_response)
+        except (APIRequestError, UnauthorizedError) as error:
+            raise UpdateFailed(error) from error
+
         return data
 
     async def _get_ocwb_weather(self):
