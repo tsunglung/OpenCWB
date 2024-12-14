@@ -19,7 +19,7 @@
                     "mode": "\u6a21\u5f0f",
                     "name": "\u6574\u5408\u540d\u7a31"
                 },
-                "description": "\u6b32\u8a2d\u5b9a OpenCWB \u6574\u5408\u3002\u8acb\u81f3 https://opendata.cwb.gov.tw/devManual/insrtuction \u7522\u751f API \u5bc6\u9470",
+                "description": "\u6b32\u8a2d\u5b9a OpenCWB \u6574\u5408\u3002\u8acb\u81f3 https://opendata.cwa.gov.tw/devManual/insrtuction \u7522\u751f API \u5bc6\u9470. \u95dc\u65bc \u9109\u93ae\u540d\u7a31, \u8acb\u53c3\u95b1 https://opendata.cwa.gov.tw/opendatadoc/Opendata_City.pdf",
                 "title": "OpenCWB"
             }
         }

@@ -21,6 +21,7 @@ from .const import (
     ATTR_API_WIND_GUST,
     ATTR_API_WIND_SPEED,
     ATTRIBUTION,
+    CONF_LOCATION_NAME,
     DEFAULT_NAME,
     DOMAIN,
     ENTRY_NAME,
@@ -41,9 +42,10 @@ async def async_setup_entry(
     domain_data = hass.data[DOMAIN][config_entry.entry_id]
     name = domain_data[ENTRY_NAME]
     weather_coordinator = domain_data[ENTRY_WEATHER_COORDINATOR]
+    location_name = domain_data[CONF_LOCATION_NAME]
 
     unique_id = f"{config_entry.unique_id}"
-    ocwb_weather = OpenCWBWeather(name, unique_id, weather_coordinator)
+    ocwb_weather = OpenCWBWeather(f"{name} {location_name}", f"{unique_id}-{location_name}", weather_coordinator)
 
     async_add_entities([ocwb_weather], False)
 
@@ -62,9 +64,10 @@ class OpenCWBWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
         self._attr_name = name
         self._attr_unique_id = unique_id
         self._weather_coordinator = weather_coordinator
+        split_unique_id = unique_id.split("-")
         self._attr_device_info = DeviceInfo(
             entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, unique_id)},
+            identifiers={(DOMAIN, f"{split_unique_id[0]}-{split_unique_id[1]}")},
             manufacturer=MANUFACTURER,
             name=DEFAULT_NAME,
         )

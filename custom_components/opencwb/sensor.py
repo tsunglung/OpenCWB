@@ -2,6 +2,7 @@
 from .abstract_ocwb_sensor import AbstractOpenCWBSensor
 from .const import (
     ATTR_API_FORECAST,
+    CONF_LOCATION_NAME,
     DOMAIN,
     ENTRY_NAME,
     ENTRY_WEATHER_COORDINATOR,
@@ -18,16 +19,17 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     domain_data = hass.data[DOMAIN][config_entry.entry_id]
     name = domain_data[ENTRY_NAME]
     weather_coordinator = domain_data[ENTRY_WEATHER_COORDINATOR]
+    location_name = domain_data[CONF_LOCATION_NAME]
 
     weather_sensor_types = WEATHER_SENSOR_TYPES
     forecast_sensor_types = FORECAST_SENSOR_TYPES
 
     entities = []
     for sensor_type in MONITORED_CONDITIONS:
-        unique_id = f"{config_entry.unique_id}-{sensor_type}"
+        unique_id = f"{config_entry.unique_id}-{sensor_type}-{location_name}"
         entities.append(
             OpenCWBSensor(
-                f"{name} {sensor_type}",
+                f"{name} {location_name} {sensor_type}",
                 unique_id,
                 sensor_type,
                 weather_sensor_types[sensor_type],
@@ -36,10 +38,10 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         )
 
     for sensor_type in FORECAST_MONITORED_CONDITIONS:
-        unique_id = f"{config_entry.unique_id}-forecast-{sensor_type}"
+        unique_id = f"{config_entry.unique_id}-forecast-{sensor_type}-{location_name}"
         entities.append(
             OpenCWBForecastSensor(
-                f"{name} Forecast {sensor_type}",                
+                f"{name} {location_name} Forecast {sensor_type}",
                 unique_id,
                 sensor_type,
                 forecast_sensor_types[sensor_type],

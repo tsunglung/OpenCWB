@@ -64,6 +64,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     hass.data[DOMAIN][config_entry.entry_id] = {
         ENTRY_NAME: name,
         ENTRY_WEATHER_COORDINATOR: weather_coordinator,
+        CONF_LOCATION_NAME: location_name
     }
 
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)

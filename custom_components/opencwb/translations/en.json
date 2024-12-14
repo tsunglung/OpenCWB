@@ -19,7 +19,7 @@
                     "mode": "Mode",
                     "name": "Name of the integration"
                 },
-                "description": "Set up OpenCWB integration. To generate API key go to https://opendata.cwb.gov.tw/devManual/insrtuction",
+                "description": "Set up OpenCWB integration. To generate API key go to https://opendata.cwa.gov.tw/devManual/insrtuction. About Location Name, please check https://opendata.cwa.gov.tw/opendatadoc/Opendata_City.pdf",
                 "title": "OpenCWB"
             }
         }

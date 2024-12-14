@@ -71,7 +71,7 @@ class OpendataCWB:
                             pop = element_value[0][value_str]
                         else:
                             pop = list(element_value[0].values())[0]
-                        if pop == " ":
+                        if pop == " " or pop == "-":
                             pop = "0"
                         value["pop"] = float(int(pop)/100)
                         break
@@ -80,19 +80,19 @@ class OpendataCWB:
                     value["main"]["feels_like"] = int(element_value[0][value_str])
                 else:
                     value["main"]["feels_like"] = int(list(element_value[0].values())[0])
-            elif "MaxAT" == i[elementname]:
+            elif "MaxAT" == i[elementname] or "\u6700\u9ad8\u9ad4\u611f\u6eab\u5ea6" == i[elementname]:
                 if value_str in element_value[0]:
                     value["main"]["feels_like"] = int(element_value[0][value_str])
                     value["feels_like"]["max"] = int(element_value[0][value_str])
                 else:
                     value["main"]["feels_like"] = int(list(element_value[0].vaules())[0])
                     value["feels_like"]["max"] = int(list(element_value[0].values())[0])
-            elif "MinAT" == i[elementname]:
+            elif "MinAT" == i[elementname] or "\u6700\u4f4e\u9ad4\u611f\u6eab\u5ea6" == i[elementname]:
                 if value_str in element_value[0]:
                     value["feels_like"]["min"] = int(element_value[0][value_str])
                 else:
                     value["feels_like"]["min"] = int(list(element_value[0].values())[0])
-            elif "UVI" == i[elementname]:
+            elif "UVI" == i[elementname] or "\u7d2b\u5916\u7dda\u6307\u6578" == i[elementname]:
                 value["uvi"] = 0
                 for j in i["time"]:
                     if start_time == j[starttime]:
@@ -106,12 +106,12 @@ class OpendataCWB:
                     value["main"]["temp"] = int(element_value[0][value_str])
                 else:
                     value["main"]["temp"] = int(list(element_value[0].values())[0])
-            elif "MaxT" == i[elementname]:
+            elif "MaxT" == i[elementname] or "\u6700\u9ad8\u6eab\u5ea6" == i[elementname]:
                 if value_str in element_value[0]:
                     value["main"]["temp_max"] = int(element_value[0][value_str])
                 else:
                     value["main"]["temp_max"] = int(list(element_value[0].values())[0])
-            elif "MinT" == i[elementname]:
+            elif "MinT" == i[elementname] or "\u6700\u4f4e\u6eab\u5ea6" == i[elementname]:
                 if value_str in element_value[0]:
                     value["main"]["temp_min"] = int(element_value[0][value_str])
                 else:
