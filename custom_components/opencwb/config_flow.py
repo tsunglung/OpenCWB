@@ -21,8 +21,8 @@ from .const import (
     DEFAULT_NAME,
     DOMAIN,
     FORECAST_MODES,
-    FORECAST_MODE_ONECALL_HOURLY,
-    FORECAST_MODE_ONECALL_DAILY
+#    FORECAST_MODE_ONECALL_HOURLY,
+#    FORECAST_MODE_ONECALL_DAILY
 )
 from .core.weatherapi12.uris import ONE_CALL_URI
 
@@ -60,9 +60,9 @@ class OpenCWBConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         location_name) + "-" + user_input[CONF_MODE])
                 self._abort_if_unique_id_configured()
 
-                if (location_id != ONE_CALL_URI and
-                        user_input[CONF_MODE] == FORECAST_MODE_ONECALL_DAILY):
-                    user_input[CONF_MODE] = FORECAST_MODE_ONECALL_HOURLY
+                #if (location_id != ONE_CALL_URI and
+                #        user_input[CONF_MODE] == FORECAST_MODE_ONECALL_DAILY):
+                #    user_input[CONF_MODE] = FORECAST_MODE_ONECALL_HOURLY
 
                 try:
                     api_online = await _is_ocwb_api_online(
@@ -121,9 +121,9 @@ class OpenCWBOptionsFlow(config_entries.OptionsFlow):
             location_id = _is_supported_city(
                 self.config_entry.data.get(CONF_API_KEY),
                 self.config_entry.data.get(CONF_LOCATION_NAME))
-            if (location_id != ONE_CALL_URI and
-                    user_input[CONF_MODE] == FORECAST_MODE_ONECALL_DAILY):
-                user_input[CONF_MODE] = FORECAST_MODE_ONECALL_HOURLY
+            #if (location_id != ONE_CALL_URI and
+            #        user_input[CONF_MODE] == FORECAST_MODE_ONECALL_DAILY):
+            #    user_input[CONF_MODE] = FORECAST_MODE_ONECALL_HOURLY
 
             return self.async_create_entry(title="", data=user_input)
 
@@ -153,7 +153,7 @@ class OpenCWBOptionsFlow(config_entries.OptionsFlow):
 
 async def _is_ocwb_api_online(hass, api_key, lat, lon, loc):
     ocwb = OCWB(api_key).weather_manager()
-    return await hass.async_add_executor_job(ocwb.one_call, lat, lon, loc)
+    return await hass.async_add_executor_job(ocwb.one_call, lat, lon, loc, "daily")
 
 
 def _is_supported_city(api_key, loc):

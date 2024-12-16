@@ -64,8 +64,8 @@ class WeatherManager:
 
         :param name: the location's toponym
         :type name: str
-        :param interval: the granularity of the forecast, among `3h` and 'daily'
-        :type interval: str among `3h` and 'daily'
+        :param interval: the granularity of the forecast, among `hourly` and 'daily'
+        :type interval: str among `hourly` and 'daily'
         :returns: an *Observation* instance or ``None`` if no weather data is
             available
         :raises: *ParseResponseException* when OCWB Weather API responses' data
@@ -78,7 +78,7 @@ class WeatherManager:
         if loc_id is None:
             raise ValueError("%s is not support location".format(name))
         params = {'locationName': name}
-        if interval == '3h':
+        if interval == 'hourly':
             uri = loc_id
         elif interval == 'daily':
             uri = loc_id[0:loc_id.rindex("-") + 1] + str(
@@ -294,8 +294,8 @@ class WeatherManager:
 
         :param name: the location's toponym
         :type name: str
-        :param interval: the granularity of the forecast, among `3h` and 'daily'
-        :type interval: str among `3h` and 'daily'
+        :param interval: the granularity of the forecast, among `hourly` and 'daily'
+        :type interval: str among `hourly` and 'daily'
         :param limit: the maximum number of *Weather* items to be retrieved
             (default is ``None``, which stands for any number of items)
         :type limit: int or ``None``
@@ -317,7 +317,7 @@ class WeatherManager:
         params = {'locationName': urllib.parse.quote_plus(name)}
         if limit is not None:
             params['cnt'] = limit
-        if interval == '3h':
+        if interval == 'hourly':
             uri = loc_id
         elif interval == 'daily':
             uri = loc_id[0:loc_id.rindex("-") + 1] + str(
@@ -343,8 +343,8 @@ class WeatherManager:
         :type lat: int/float
         :param lon: location's longitude, must be between -180.0 and 180.0
         :type lon: int/float
-        :param interval: the granularity of the forecast, among `3h` and 'daily'
-        :type interval: str among `3h` and 'daily'
+        :param interval: the granularity of the forecast, among `hourly` and 'daily'
+        :type interval: str among `hourly` and 'daily'
         :param limit: the maximum number of *Weather* items to be retrieved
             (default is ``None``, which stands for any number of items)
         :type limit: int or ``None``
@@ -364,7 +364,7 @@ class WeatherManager:
         params = {'lon': lon, 'lat': lat}
         if limit is not None:
             params['cnt'] = limit
-        if interval == '3h':
+        if interval == 'hourly':
             uri = THREE_HOURS_FORECAST_URI
         elif interval == 'daily':
             uri = DAILY_FORECAST_URI
@@ -387,8 +387,8 @@ class WeatherManager:
 
         :param id: the location's city ID
         :type id: int
-        :param interval: the granularity of the forecast, among `3h` and 'daily'
-        :type interval: str among `3h` and 'daily'
+        :param interval: the granularity of the forecast, among `hourly` and 'daily'
+        :type interval: str among `hourly` and 'daily'
         :param limit: the maximum number of *Weather* items to be retrieved
             (default is ``None``, which stands for any number of items)
         :type limit: int or ``None``
@@ -409,7 +409,7 @@ class WeatherManager:
         params = {'id': id}
         if limit is not None:
             params['cnt'] = limit
-        if interval == '3h':
+        if interval == 'hourly':
             uri = THREE_HOURS_FORECAST_URI
         elif interval == 'daily':
             uri = DAILY_FORECAST_URI
@@ -536,7 +536,7 @@ class WeatherManager:
         return sh
 
     def one_call(
-        self, lat: Union[int, float], lon: Union[int, float], loc: Union[str, None], **kwargs
+        self, lat: Union[int, float], lon: Union[int, float], loc: Union[str, None], intvl: Union[str, None], **kwargs
     ) -> one_call.OneCall:
         """
         Queries the OCWB Weather API with one call for current weather information and forecast for the
@@ -554,7 +554,7 @@ class WeatherManager:
         :type lon: int/float
         :param lon: location's name
         :type lon: str or None
-        :param intvl: internal
+        :param intvl: interval
         :type intrl: str or None
         :returns: a *OneCall* instance or ``None`` if the data is not
             available for the specified location
@@ -567,15 +567,16 @@ class WeatherManager:
 
         loc_id = self.supported_city(loc)
         loc = self.remove_city_name(loc)
-        uri = ONE_CALL_URI
-        if loc_id != ONE_CALL_URI:
+        uri = loc_id
+        if intvl == "daily":
             uri = uri[0:uri.rindex("-") + 1] + str(
                 int(uri[uri.rindex("-") + 1:]) + 2).zfill(3)
         params = {
             'lon': lon,
             'lat': lat,
-            'locationId': loc_id,
-            'locationName': loc}
+#            'locationId': loc_id,
+            'locationName': loc,
+            'interval': intvl}
         for key , value in kwargs.items():
             if key == 'exclude':
                 params['exclude'] = value

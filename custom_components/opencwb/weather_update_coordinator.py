@@ -110,7 +110,8 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
                 self._ocwb_client.one_call,
                 self._latitude,
                 self._longitude,
-                self._location_name
+                self._location_name,
+                self.forecast_mode.split("_")[1]
             )
         else:
             weather = await self.hass.async_add_executor_job(
@@ -133,7 +134,7 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
         """Get the correct forecast interval depending on the forecast mode."""
         interval = "daily"
         if self.forecast_mode == FORECAST_MODE_HOURLY:
-            interval = "3h"
+            interval = "hourly"
         return interval
 
     def _convert_weather_response(self, weather_response):

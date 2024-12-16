@@ -7,6 +7,9 @@ from homeassistant.util.unit_conversion import PressureConverter
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.const import (
+    UnitOfSpeed
+)
 
 from .const import (
     ATTR_API_CLOUDS,
@@ -52,6 +55,8 @@ async def async_setup_entry(
 
 class OpenCWBWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
     """Implementation of an OpenCWB sensor."""
+    _attr_attribution = ATTRIBUTION
+    _attr_native_wind_speed_unit = UnitOfSpeed.METERS_PER_SECOND
 
     def __init__(
         self,
@@ -83,11 +88,6 @@ class OpenCWBWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
     def should_poll(self):
         """Return the polling requirement of the entity."""
         return False
-
-    @property
-    def attribution(self):
-        """Return the attribution."""
-        return ATTRIBUTION
 
     @property
     def condition(self):
@@ -165,26 +165,3 @@ class OpenCWBWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
     def _async_forecast_hourly(self) -> list[Forecast] | None:
         """Return the hourly forecast in native units."""
         return self.forecast
-
-    async def async_update(self):
-        """Get the latest data from OCWB and updates the states."""
-        self._attr_temperature_unit = UnitOfTemperature.CELSIUS
-        self._attr_wind_speed_unit = self.anws_aoaws_now.wind_speed.units
-
-        self._attr_temperature = self._weather_coordinator.data[ATTR_API_TEMPERATURE]
-        pressure = self._weather_coordinator.data[ATTR_API_PRESSURE]
-
-        # OpenWeatherMap returns pressure in hPA, so convert to
-        # inHg if we aren't using metric.
-        if not self.hass.config.units.is_metric and pressure:
-            self._attr_pressure = PressureConverter(pressure, UnitOfPressure.HPA, UnitOfPressure.INHG)
-        self._attr_pressure = pressure
-
-        wind_speed = self._weather_coordinator.data[ATTR_API_WIND_SPEED]
-        if self.hass.config.units.name == "imperial":
-            self._attr_wind_speed = round(wind_speed * 2.24, 2)
-        self._attr_wind_speed = round(wind_speed * 3.6, 2)
-        self._attr_humidity = self._weather_coordinator.data[ATTR_API_HUMIDITY]
-        self._attr_wind_bearing = self._weather_coordinator.data[ATTR_API_WIND_BEARING]
-
-        await self._weather_coordinator.async_request_refresh()
