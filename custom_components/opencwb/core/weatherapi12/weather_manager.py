@@ -77,6 +77,10 @@ class WeatherManager:
         loc_id = self.supported_city(name)
         if loc_id is None:
             raise ValueError("%s is not support location".format(name))
+
+        if '\u5e02' in name.lower():
+            name = name.lower().split('\u5e02')[1] if len(name.lower().split('\u5e02')) >= 2 else name
+
         params = {'locationName': name}
         if interval == 'hourly':
             uri = loc_id
@@ -310,6 +314,11 @@ class WeatherManager:
         loc_id = self.supported_city(name)
         if loc_id is None:
             raise ValueError("%s is not support location".format(name))
+
+        if '\u5e02' in name.lower():
+            name = name.lower().split('\u5e02')[1] if len(name.lower().split('\u5e02')) >= 2 else name
+
+
         if limit is not None:
             assert isinstance(limit, int), "'limit' must be an int or None"
             if limit < 1:
