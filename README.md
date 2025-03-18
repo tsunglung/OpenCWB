@@ -29,7 +29,7 @@ Then restart HA.
    1. If the integration didn't show up in the list please REFRESH the page
    2. If the integration is still not in the list, you need to clear the browser cache.
 2. Enter API key.
-3. Enter the location name of Taiwan. Please reference to the name in the [doc](https://opendata.cwa.gov.tw/opendatadoc/insrtuction/CWA_Data_Standard.pdf) appendix A.
+3. Enter the location name of Taiwan. Please reference to the name in the [doc](https://opendata.cwa.gov.tw/opendatadoc/Opendata_City.pdf) appendix A.
    1. Some location name need to include the city name.
 
 Buy Me A Coffee
