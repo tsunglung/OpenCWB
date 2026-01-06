@@ -2,14 +2,11 @@
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.components.weather import Forecast, WeatherEntityFeature, SingleCoordinatorWeatherEntity
-from homeassistant.const import UnitOfPressure, UnitOfTemperature
+from homeassistant.const import UnitOfLength, UnitOfPressure, UnitOfSpeed, UnitOfTemperature
 from homeassistant.util.unit_conversion import PressureConverter
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.const import (
-    UnitOfSpeed
-)
 
 from .const import (
     ATTR_API_CLOUDS,
@@ -56,6 +53,9 @@ async def async_setup_entry(
 class OpenCWBWeather(SingleCoordinatorWeatherEntity[WeatherUpdateCoordinator]):
     """Implementation of an OpenCWB sensor."""
     _attr_attribution = ATTRIBUTION
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_pressure_unit = UnitOfPressure.HPA
+    _attr_native_precipitation_unit = UnitOfLength.MILLIMETERS
     _attr_native_wind_speed_unit = UnitOfSpeed.METERS_PER_SECOND
 
     def __init__(
