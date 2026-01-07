@@ -29,7 +29,7 @@
    1. 如果 OpenCWA 沒有出現在清單裡，請 重新整理 (REFRESH) 網頁。
    2. 如果 OpenCWA 還是沒有出現在清單裡，請清除瀏覽器的快取 (Cache)。
 2. 輸入 API 授權碼.
-3. 輸入台灣的郷鎮市的名稱。 請參考在 [文件](https://opendata.cwa.gov.tw/opendatadoc/insrtuction/CWA_Data_Standard.pdf) 附錄 A 裡的名稱。
+3. 輸入台灣的郷鎮市的名稱。 請參考 [文件](https://opendata.cwa.gov.tw/opendatadoc/Opendata_City.pdf)。
    1. 如果，是下列鄉鎮市，則需要包含城市名，例如，是東區，要打 嘉義市東區 或是 臺中市東區。
    2. 北區 西區 東區 中區 南區 信義區 中正區 中山區 大安區
 
