@@ -1,6 +1,4 @@
 """Config flow for OpenCWB."""
-from .core.ocwb import OCWB
-from .core.commons.exceptions import APIRequestError, UnauthorizedError
 import voluptuous as vol
 import urllib.parse
 
@@ -24,6 +22,9 @@ from .const import (
 #    FORECAST_MODE_ONECALL_HOURLY,
 #    FORECAST_MODE_ONECALL_DAILY
 )
+from .core.commons.exceptions import APIRequestError, UnauthorizedError
+from .core.ocwb import OCWB
+from .core.utils.config import get_default_config
 from .core.weatherapi12.uris import ONE_CALL_URI
 
 
@@ -37,7 +38,7 @@ class OpenCWBConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry):
         """Get the options flow for this handler."""
-        return OpenCWBOptionsFlow(config_entry)
+        return OpenCWBOptionsFlow()
 
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""
@@ -111,10 +112,6 @@ class OpenCWBConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 class OpenCWBOptionsFlow(config_entries.OptionsFlow):
     """Handle options."""
 
-    def __init__(self, config_entry):
-        """Initialize options flow."""
-        self.config_entry = config_entry
-
     async def async_step_init(self, user_input=None):
         """Manage the options."""
         if user_input is not None:
@@ -159,3 +156,25 @@ async def _is_ocwb_api_online(hass, api_key, lat, lon, loc):
 def _is_supported_city(api_key, loc):
     ocwb = OCWB(api_key).weather_manager()
     return ocwb.supported_city(loc)
+
+
+def _set_async_http_client(hass, config_dict):
+    """Set async http client."""
+    if config_dict['connection']['use_proxy']:
+        proxies = config_dict['connection']['proxies']
+        proxy_mounts = {
+            "http://": AsyncHTTPTransport(proxy=proxies['http']),
+            "https://": AsyncHTTPTransport(proxy=proxies['https']),
+        }
+        proxy_client = create_async_httpx_client(
+            hass,
+            verify_ssl=config_dict['connection']['verify_ssl_certs'],
+            mounts=proxy_mounts, 
+        )
+        return proxy_client
+
+    default_async_client = get_async_client(
+        hass, 
+        verify_ssl=config_dict['connection']['verify_ssl_certs'],
+    )
+    return default_async_client

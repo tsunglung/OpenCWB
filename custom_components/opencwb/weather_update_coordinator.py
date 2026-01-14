@@ -106,26 +106,24 @@ class WeatherUpdateCoordinator(DataUpdateCoordinator):
             self.forecast_mode == FORECAST_MODE_ONECALL_HOURLY
             or self.forecast_mode == FORECAST_MODE_ONECALL_DAILY
         ):
-            weather = await self.hass.async_add_executor_job(
-                self._ocwb_client.one_call,
+            weather = await self._ocwb_client.async_one_call(
                 self._latitude,
                 self._longitude,
                 self._location_name,
                 self.forecast_mode.split("_")[1]
             )
         else:
-            weather = await self.hass.async_add_executor_job(
-                self._get_legacy_weather_and_forecast
-            )
+            weather = await self._get_legacy_weather_and_forecast()
 
         return weather
 
-    def _get_legacy_weather_and_forecast(self):
+    async def _get_legacy_weather_and_forecast(self):
         """Get weather and forecast data from Opendata CWB."""
         interval = self._get_forecast_interval()
-        weather = self._ocwb_client.weather_at_place(
-            self._location_name, interval)
-        forecast = self._ocwb_client.forecast_at_place(
+        weather = await self._ocwb_client.async_weather_at_place(
+            self._location_name, interval
+        )
+        forecast = await self._ocwb_client.async_forecast_at_place(
             self._location_name, interval, self._forecast_limit
         )
         return LegacyWeather(weather.weather, forecast.forecast.weathers)
