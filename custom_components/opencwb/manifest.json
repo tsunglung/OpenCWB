@@ -5,7 +5,12 @@
   "version": "1.2.1",
   "documentation": "https://opendata.cwa.gov.tw/devManual/insrtuction",
   "issue_tracker": "https://github.com/tsunglung/OpenCWB/issues",
-  "requirements": ["geojson"],
-  "codeowners": ["@tsunglung"],
+  "requirements": [
+    "geojson",
+    "httpx>=0.28.1"
+  ],
+  "codeowners": [
+    "@tsunglung"
+  ],
   "iot_class": "cloud_polling"
 }

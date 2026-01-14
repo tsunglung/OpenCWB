@@ -10,10 +10,10 @@ DEFAULT_CONFIG = {
         'use_ssl': True,
         'verify_ssl_certs': False,
         'use_proxy': False,
-        'timeout_secs': 5
+        'timeout_secs': 5,
     },
     'proxies': {
         'http': 'http://user:pass@host:port',
         'https': 'socks5://user:pass@host:port'
-    }
+    },
 }

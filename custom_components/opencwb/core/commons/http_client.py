@@ -4,6 +4,8 @@
 import json
 import requests
 
+from httpx import AsyncClient, TransportError, ConnectError, TimeoutException
+
 from . import exceptions
 from .enums import ImageTypeEnum
 
@@ -142,13 +144,7 @@ class HttpClient:
         self.admits_subdomains = admits_subdomains
 
     def get_json(self, path, params=None, headers=None):
-        builder = HttpRequestBuilder(self.root_uri, self.api_key, self.config, has_subdomains=self.admits_subdomains)\
-            .with_path(path)\
-            .with_api_key()\
-            .with_language()\
-            .with_query_params(params if params is not None else dict())\
-            .with_headers(headers if headers is not None else dict())
-        url, params, headers, proxies = builder.build()
+        url, params, headers, proxies = self._http_builder(path, params, headers)
         try:
             resp = requests.get(url, params=params, headers=headers, proxies=proxies,
                                 timeout=self.config['connection']['timeout_secs'],
@@ -166,14 +162,8 @@ class HttpClient:
             raise exceptions.ParseAPIResponseError('Impossible to parse API response data')
 
     def get_png(self, path, params=None, headers=None):
-        builder = HttpRequestBuilder(self.root_uri, self.api_key, self.config, has_subdomains=self.admits_subdomains)\
-            .with_path(path)\
-            .with_api_key()\
-            .with_language()\
-            .with_query_params(params if params is not None else dict())\
-            .with_headers(headers if headers is not None else dict())\
-            .with_header('Accept', ImageTypeEnum.PNG.mime_type)
-        url, params, headers, proxies = builder.build()
+        url, params, headers, proxies = self._http_builder(
+            path, params, headers, ImageTypeEnum.PNG.mime_type)
         try:
             resp = requests.get(url, stream=True, params=params, headers=headers, proxies=proxies,
                                 timeout=self.config['connection']['timeout_secs'],
@@ -188,18 +178,11 @@ class HttpClient:
         try:
             return resp.status_code, resp.content
         except:
-            raise exceptions.ParseAPIResponseError('Impossible to parse'
-                                                          'API response data')
+            raise exceptions.ParseAPIResponseError('Impossible to parse API response data')
 
     def get_geotiff(self, path, params=None, headers=None):
-        builder = HttpRequestBuilder(self.root_uri, self.api_key, self.config, has_subdomains=self.admits_subdomains)\
-            .with_path(path)\
-            .with_api_key()\
-            .with_language()\
-            .with_query_params(params if params is not None else dict())\
-            .with_headers(headers if headers is not None else dict())\
-            .with_header('Accept', ImageTypeEnum.GEOTIFF.mime_type)
-        url, params, headers, proxies = builder.build()
+        url, params, headers, proxies = self._http_builder(
+            path, params, headers, ImageTypeEnum.GEOTIFF.mime_type)
         try:
             resp = requests.get(url, stream=True, params=params, headers=headers, proxies=proxies,
                                 timeout=self.config['connection']['timeout_secs'],
@@ -214,17 +197,10 @@ class HttpClient:
         try:
             return resp.status_code, resp.content
         except:
-            raise exceptions.ParseAPIResponseError('Impossible to parse'
-                                                          'API response data')
+            raise exceptions.ParseAPIResponseError('Impossible to parse API response data')
 
     def post(self, path, params=None, data=None, headers=None):
-        builder = HttpRequestBuilder(self.root_uri, self.api_key, self.config, has_subdomains=self.admits_subdomains)\
-            .with_path(path)\
-            .with_api_key()\
-            .with_language()\
-            .with_query_params(params if params is not None else dict())\
-            .with_headers(headers if headers is not None else dict())
-        url, params, headers, proxies = builder.build()
+        url, params, headers, proxies = self._http_builder(path, params, headers)
         try:
             resp = requests.post(url, params=params, json=data, headers=headers, proxies=proxies,
                                  timeout=self.config['connection']['timeout_secs'],
@@ -244,13 +220,7 @@ class HttpClient:
         return resp.status_code, json_data
 
     def put(self, path, params=None, data=None, headers=None):
-        builder = HttpRequestBuilder(self.root_uri, self.api_key, self.config, has_subdomains=self.admits_subdomains)\
-            .with_path(path)\
-            .with_api_key()\
-            .with_language()\
-            .with_query_params(params if params is not None else dict())\
-            .with_headers(headers if headers is not None else dict())
-        url, params, headers, proxies = builder.build()
+        url, params, headers, proxies = self._http_builder(path, params, headers)
         try:
             resp = requests.put(url, params=params, json=data, headers=headers, proxies=proxies,
                                 timeout=self.config['connection']['timeout_secs'],
@@ -270,13 +240,7 @@ class HttpClient:
         return resp.status_code, json_data
 
     def delete(self, path, params=None, data=None, headers=None):
-        builder = HttpRequestBuilder(self.root_uri, self.api_key, self.config, has_subdomains=self.admits_subdomains)\
-            .with_path(path)\
-            .with_api_key()\
-            .with_language()\
-            .with_query_params(params if params is not None else dict())\
-            .with_headers(headers if headers is not None else dict())
-        url, params, headers, proxies = builder.build()
+        url, params, headers, proxies = self._http_builder(path, params, headers)
         try:
             resp = requests.delete(url, params=params, json=data, headers=headers, proxies=proxies,
                                    timeout=self.config['connection']['timeout_secs'],
@@ -307,6 +271,155 @@ class HttpClient:
             raise exceptions.NotFoundError('Unable to find the resource')
         else:
             raise exceptions.BadGatewayError('Unable to contact the upstream server')
+
+    def _http_builder(self, path, params, headers, accept=None):
+        builder = HttpRequestBuilder(
+            self.root_uri, self.api_key, 
+            self.config, has_subdomains=self.admits_subdomains
+        )
+            
+        builder.with_path(path)\
+        .with_api_key()\
+        .with_language()\
+        .with_query_params(params if params is not None else dict())\
+        .with_headers(headers if headers is not None else dict())
+
+        if accept is not None:
+            builder.with_header('Accept', accept)
+
+        return builder.build()
+
+    def __repr__(self):
+        return "<%s.%s - root: %s>" % (__name__, self.__class__.__name__, self.root_uri)
+
+
+class AsyncHttpClient:
+
+    """
+    An Async HTTP client encapsulating some config data and abstarcting away data raw retrieval
+
+    :param async_client: the async HTTP client to use
+    :type async_client: httpx.AsyncClient
+    :param api_key: the OCWB API key
+    :type api_key: str
+    :param config: the configuration dictionary (if not provided, a default one will be used)
+    :type config: dict
+    :param root_uri: the root URI of the API endpoint
+    :type root_uri: str
+    :param admits_subdomains: if the root URI of the API endpoint admits subdomains based on the subcription type (default: True)
+    :type admits_subdomains: bool
+    """
+
+    def __init__(self, async_client, api_key, config, root_uri, admits_subdomains=True):
+        assert isinstance(async_client, AsyncClient)
+        self.client = async_client
+        assert isinstance(api_key, str)
+        self.api_key = api_key
+        assert isinstance(config, dict)
+        self.config = config
+        assert isinstance(root_uri, str)
+        self.root_uri = root_uri
+        assert isinstance(admits_subdomains, bool)
+        self.admits_subdomains = admits_subdomains
+
+    async def get_json(self, path, params=None, headers=None):
+        resp = await self._async_reguest_method('get', path, params, headers)
+
+        try:
+            return resp.status_code, resp.json()
+        except:
+            raise exceptions.ParseAPIResponseError('Impossible to parse API response data')
+
+    async def get_png(self, path, params=None, headers=None):
+        resp = await self._async_reguest_method(
+            'get', path, params, headers, accept=ImageTypeEnum.PNG.mime_type
+        )
+
+        try:
+            content = await resp.aread()
+            return resp.status_code, content
+        except:
+            raise exceptions.ParseAPIResponseError('Impossible to parse API response data')
+
+    async def get_geotiff(self, path, params=None, headers=None):
+        resp = await self._async_reguest_method(
+            'get', path, params, headers, accept=ImageTypeEnum.GEOTIFF.mime_type
+        )
+        try:
+            content = await resp.aread()
+            return resp.status_code, content
+        except:
+            raise exceptions.ParseAPIResponseError('Impossible to parse API response data')
+
+    async def post(self, path, params=None, data=None, headers=None):
+        resp = await self._async_reguest_method('post', path, params, headers, data=data)
+        try:
+            json_data = resp.json()
+        except:
+            json_data = {}
+        return resp.status_code, json_data
+
+    async def put(self, path, params=None, data=None, headers=None):
+        resp = await self._async_reguest_method('put', path, params, headers, data=data)
+        try:
+            json_data = resp.json()
+        except:
+            json_data = {}
+        return resp.status_code, json_data
+
+    async def delete(self, path, params=None, data=None, headers=None):
+        resp = await self._async_reguest_method('delete', path, params, headers, data=data)
+        try:
+            json_data = resp.json()
+        except:
+            json_data = None
+        return resp.status_code, json_data
+
+    def _http_builder(self, path, params, headers, accept=None):
+        builder = HttpRequestBuilder(
+            self.root_uri, self.api_key, 
+            self.config, has_subdomains=self.admits_subdomains
+        )
+            
+        builder.with_path(path)\
+        .with_api_key()\
+        .with_language()\
+        .with_query_params(params if params is not None else dict())\
+        .with_headers(headers if headers is not None else dict())
+
+        if accept is not None:
+            builder.with_header('Accept', accept)
+
+        return builder.build()
+    
+    async def _async_reguest_method(
+        self, method, path, params, headers, data=None, accept=None
+    ):
+        url, _params, _headers, _ = self._http_builder(path, params, headers, accept)
+
+        _params["Authorization"] = self.api_key
+        
+        kwargs = {
+            "params": _params,
+            "headers": _headers,
+            "timeout": self.config['connection']['timeout_secs'],
+        }
+
+        if data is not None:
+            kwargs["json"] = data
+
+        try:
+            resp = await self.client.request(method.upper(), url, **kwargs)
+        except TransportError as e:
+            raise exceptions.InvalidSSLCertificateError(str(e))
+        except ConnectError as e:
+            raise exceptions.InvalidSSLCertificateError(str(e))
+        except TimeoutException:
+            raise exceptions.TimeoutError('API call timeouted')
+
+        HttpClient.check_status_code(resp.status_code, resp.text)
+
+        return resp
 
     def __repr__(self):
         return "<%s.%s - root: %s>" % (__name__, self.__class__.__name__, self.root_uri)

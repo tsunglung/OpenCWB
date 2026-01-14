@@ -2,6 +2,8 @@
 import asyncio
 import logging
 
+from httpx import AsyncHTTPTransport
+
 from .core.ocwb import OCWB
 from .core.utils.config import get_default_config
 
@@ -14,8 +16,10 @@ from homeassistant.const import (
     CONF_NAME,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.httpx_client import get_async_client, create_async_httpx_client
 
 from .const import (
+    ASYNC_HTTP_CLIENT,
     CONF_LANGUAGE,
     CONF_LOCATION_NAME,
     # CONFIG_FLOW_VERSION,
@@ -50,10 +54,11 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     forecast_mode = _get_config_value(
         config_entry, CONF_MODE, DEFAULT_FORECAST_MODE)
     language = _get_config_value(config_entry, CONF_LANGUAGE, DEFAULT_LANGUAGE)
-
+    
     config_dict = _get_ocwb_config(language)
 
-    ocwb = OCWB(api_key, config_dict).weather_manager()
+    async_http_client = _get_http_client(hass, config_dict)
+    ocwb = OCWB(api_key, config_dict).weather_manager(async_http_client)
     weather_coordinator = WeatherUpdateCoordinator(
         ocwb, location_name, latitude, longitude, forecast_mode, hass
     )
@@ -61,10 +66,11 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     await weather_coordinator.async_config_entry_first_refresh()
 
     hass.data.setdefault(DOMAIN, {})
+    hass.data[DOMAIN].setdefault(ASYNC_HTTP_CLIENT, async_http_client)
     hass.data[DOMAIN][config_entry.entry_id] = {
         ENTRY_NAME: name,
         ENTRY_WEATHER_COORDINATOR: weather_coordinator,
-        CONF_LOCATION_NAME: location_name
+        CONF_LOCATION_NAME: location_name,
     }
 
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
@@ -115,3 +121,30 @@ def _get_ocwb_config(language):
     config_dict = get_default_config()
     config_dict["language"] = language
     return config_dict
+
+
+def _get_http_client(hass, config_dict):
+    """Get http client."""
+    def _set_async_http_client(hass, config_dict):
+        if config_dict['connection']['use_proxy']:
+            proxies = config_dict['connection']['proxies']
+            proxy_mounts = {
+                "http://": AsyncHTTPTransport(proxy=proxies['http']),
+                "https://": AsyncHTTPTransport(proxy=proxies['https']),
+            }
+            proxy_client = create_async_httpx_client(
+                hass,
+                verify_ssl=config_dict['connection']['verify_ssl_certs'],
+                mounts=proxy_mounts, 
+            )
+            return proxy_client
+
+        default_async_client = get_async_client(
+            hass, 
+            verify_ssl=config_dict['connection']['verify_ssl_certs'],
+        )
+        return default_async_client
+
+    if not (client := hass.data[DOMAIN].get(ASYNC_HTTP_CLIENT)):
+        client = _set_async_http_client(hass, config_dict)
+    return client

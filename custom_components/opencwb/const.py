@@ -46,6 +46,7 @@ CONF_LOCATION_NAME = "location_name"
 CONFIG_FLOW_VERSION = 1
 ENTRY_NAME = "name"
 ENTRY_WEATHER_COORDINATOR = "weather_coordinator"
+ASYNC_HTTP_CLIENT = "async_http_client"
 ATTR_API_PRECIPITATION = "precipitation"
 ATTR_API_PRECIPITATION_KIND = "precipitation_kind"
 ATTR_API_DATETIME = "datetime"

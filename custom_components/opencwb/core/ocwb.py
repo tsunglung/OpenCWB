@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from httpx import AsyncClient
+
 from . import constants
 from .utils import strings
 from .utils import config as cfg
@@ -58,12 +60,15 @@ class OCWB:
         return constants.LANGUAGES
 
 
-    def weather_manager(self):
+    def weather_manager(self, client: AsyncClient | None = None):
         """
         Gives a `pyocwb.weatherapi25.weather_manager.WeatherManager` instance that can be used to fetch air
         pollution data.
         :return: a `pyocwb.weatherapi25.weather_manager.WeatherManager` instance
         """
+        if client is not None:
+            return weather_manager.AsyncWeatherManager(client, self.api_key, self.config)
+            
         return weather_manager.WeatherManager(self.api_key, self.config)
 
 
