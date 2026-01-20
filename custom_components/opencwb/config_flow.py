@@ -11,6 +11,8 @@ from homeassistant.const import (
     CONF_LONGITUDE,
     CONF_MODE,
     CONF_NAME,
+    MAJOR_VERSION,
+    MINOR_VERSION
 )
 from homeassistant.core import callback
 
@@ -113,7 +115,8 @@ class OpenCWBOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry):
         """Initialize options flow."""
-        self.config_entry = config_entry
+        if (MAJOR_VERSION, MINOR_VERSION) < (2024, 11):
+            self.config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
         """Manage the options."""
